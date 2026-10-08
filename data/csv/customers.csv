@@ -1,0 +1,11 @@
+customer_id,name,industry,region
+CUS01,Northbridge Municipal Bureau,government,North China
+CUS02,Eastport Land Resources Agency,government,East China
+CUS03,Greenvale Power Grid Co.,energy,Central China
+CUS04,Harborline Transit Authority,transport,South China
+CUS05,Clearwater Utilities Group,utilities,East China
+CUS06,Summit Natural Resources Dept.,government,Southwest China
+CUS07,Riverside Urban Planning Institute,government,East China
+CUS08,Ironwood Mining Corp.,energy,North China
+CUS09,Baywatch Port Logistics,transport,South China
+CUS10,Lakeshore Water Services,utilities,Central China

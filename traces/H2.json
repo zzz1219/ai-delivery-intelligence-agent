@@ -1,0 +1,198 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "H2",
+ "kind": "sealed_evaluation",
+ "title": "Repeat incidents counted as pairs",
+ "role": "failure_case",
+ "question": "Define a repeat incident as a closed incident for which at least one other closed incident exists with the same project, component and root cause within 90 days (before or after it). Under this definition, which root cause has the most repeat incidents, and what lesson learned is recorded in similar historical cases?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T00:40:03",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": true,
+  "retrieval_depends_on_sql": true,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Identify all closed incidents with their project, component, root cause, and incident dates, then find pairs of closed incidents for the same project, component, and root cause where the incident dates are within 90 days of each other, and aggregate the count of repeat incidents per root cause to find the root cause with the most repeat incidents."
+   }
+  ],
+  "retrieval_purpose": "Look up historical incident case reports and lessons learned for the specific root cause identified by the SQL query as having the most repeat incidents."
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Identify all closed incidents with their project, component, root cause, and incident dates, then find pairs of closed incidents for the same project, component, and root cause where the incident dates are within 90 days of each other, and aggregate the count of repeat incidents per root cause to find the root cause with the most repeat incidents.",
+   "status": "ok",
+   "sql": "WITH closed_incidents AS (\n    SELECT \n        i.incident_id,\n        i.project_id,\n        i.component_id,\n        i.root_cause,\n        i.reported_at\n    FROM incidents i\n    WHERE i.status = 'closed'\n    AND i.root_cause IS NOT NULL\n),\nrepeat_pairs AS (\n    SELECT \n        i1.root_cause\n    FROM closed_incidents i1\n    JOIN closed_incidents i2 \n        ON i1.project_id = i2.project_id\n        AND i1.component_id = i2.component_id\n        AND i1.root_cause = i2.root_cause\n        AND i1.incident_id < i2.incident_id\n        AND julianday(i2.reported_at) >= julianday(i1.reported_at)\n        AND julianday(i2.reported_at) <= julianday(i1.reported_at) + 90\n)\nSELECT \n    root_cause,\n    COUNT(*) AS repeat_incident_count\nFROM repeat_pairs\nGROUP BY root_cause\nORDER BY repeat_incident_count DESC\nLIMIT 1",
+   "attempts": 1,
+   "columns": [
+    "root_cause",
+    "repeat_incident_count"
+   ],
+   "rows": [
+    [
+     "crs_mismatch",
+     37
+    ]
+   ],
+   "row_count": 1,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Identify all closed incidents with their project, component, root cause, and incident dates, then find pairs of closed i",
+   "kind": "kpi",
+   "kpis": [
+    {
+     "column": "repeat_incident_count",
+     "label_columns": [
+      "root_cause"
+     ]
+    }
+   ],
+   "unit": "incidents",
+   "reason": "one row with 1 numeric value(s)"
+  }
+ ],
+ "retrieval": {
+  "status": "ok",
+  "purpose": "Look up historical incident case reports and lessons learned for the specific root cause identified by the SQL query as having the most repeat incidents.",
+  "queries": [
+   "historical incident case reports lessons learned crs_mismatch",
+   "crs_mismatch root cause troubleshooting guide lessons learned"
+  ],
+  "context_ids": [
+   "historical_cases/INC_0015",
+   "troubleshooting_guides/crs_mismatch",
+   "troubleshooting_guides/bulk_import_performance"
+  ],
+  "documents": [
+   {
+    "doc_id": "historical_cases/INC_0015",
+    "lane": "cases",
+    "title": "Incident Case INC_0015",
+    "sections": {
+     "symptoms": "Newly loaded layers appeared offset from the base map by hundreds of meters.",
+     "investigation": "Comparing layer metadata against the service showed different spatial reference identifiers.",
+     "root cause": "Misplaced or unjoinable features were traced to a coordinate system mismatch.",
+     "resolution": "Reprojected the loaded layers to the service coordinate system.",
+     "lessons learned": "Validate the spatial reference of incoming data before loading.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0015",
+     "project": "Land Survey Management System (P02), government sector",
+     "component": "Map Service (C03)",
+     "environment": "cloud, version v3.0",
+     "severity": "low",
+     "root_cause": "crs_mismatch",
+     "solution_pattern": "reproject_to_service_crs"
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/crs_mismatch",
+    "lane": "guides",
+    "title": "Coordinate System Mismatch",
+    "sections": {
+     "typical symptoms": "Layers are offset from the base map or spatial joins fail after loading data.",
+     "recommended diagnostic order": "1. Compare the layer's spatial reference ID with the service's.\n2. Check source data metadata for a missing or wrong SRID.\n3. Test with a small sample before reloading the full dataset.",
+     "common fixes": "- Reproject the layers to the service coordinate system.\n- Correct the SRID metadata and reload."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/bulk_import_performance",
+    "lane": "guides",
+    "title": "Bulk Import Performance and Failures",
+    "sections": {
+     "typical symptoms": "Importing millions of records stalls, fails, or leaves the system slow afterwards.",
+     "recommended diagnostic order": "1. Check the import batch size and transaction length first.\n2. Check whether indexes are rebuilt after every batch.\n3. Check memory and lock-wait metrics during the load.\n4. After the load, verify indexes and statistics (see slow query guide).",
+     "common fixes": "- Reduce batch size and pause index rebuilding until the load finishes."
+    }
+   }
+  ]
+ },
+ "answer": "Based on the SQL analysis, the root cause with the most repeat incidents is `crs_mismatch` with 37 repeat incidents [sql:t1]. \n\nFor this root cause, symptomatically similar historical cases record the following lesson learned: validate the spatial reference of incoming data before loading [historical_cases/INC_0015].",
+ "findings": [
+  {
+   "text": "Based on the SQL analysis, the root cause with the most repeat incidents is `crs_mismatch` with 37 repeat incidents [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "For this root cause, symptomatically similar historical cases record the following lesson learned: validate the spatial reference of incoming data before loading [historical_cases/INC_0015].",
+   "sql_tasks": [],
+   "docs": [
+    "historical_cases/INC_0015"
+   ]
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 1,
+  "sql_tasks_ok": 1,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 2,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "ok",
+  "documents_in_context": 3,
+  "visualization": "selected by deterministic rules (no model involved)"
+ },
+ "evaluation": {
+  "benchmark": "hybrid-1.0",
+  "benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "run_file": "hyb_gemini_gemini-3_5-flash-lite_20261007_004003.json",
+  "question_id": "H2",
+  "scoring": "final, sealed",
+  "provenance": "human scores proposed by an external reviewer, verified against the run, adopted by the project author",
+  "route_compliant": true,
+  "sql_facts": [
+   {
+    "id": "H2-s1",
+    "statement": "The root cause with the most repeat incidents is timeout.",
+    "machine_matched_task": null,
+    "human_sql_ok": false,
+    "answer_states_it": false
+   },
+   {
+    "id": "H2-s2",
+    "statement": "It has 25 repeat incidents.",
+    "machine_matched_task": null,
+    "human_sql_ok": false,
+    "answer_states_it": false
+   }
+  ],
+  "doc_facts": [
+   {
+    "id": "H2-d1",
+    "statement": "The lesson learned recorded in similar historical cases: Keep timeouts consistent across gateway, services and database.",
+    "evidence_in_agent_context": false,
+    "evidence_in_oracle_context": true,
+    "covered": false,
+    "frozen_attribution": "propagated_from_sql",
+    "posthoc_attribution": "propagated_from_sql"
+   }
+  ],
+  "requirements": [],
+  "unsupported_claims": 0,
+  "oracle_context_ids": [
+   "historical_cases/INC_0036",
+   "troubleshooting_guides/service_timeouts",
+   "deployment_guides/distributed_deployment"
+  ],
+  "oracle_note": "documents the benchmark's standard queries retrieve; a diagnostic that was never shown to any model",
+  "case_note": "SQL semantic failure. The planner rewrote the question's definition of a repeat incident as 'pairs of incidents' and the SQL counted unordered pairs (crs_mismatch 37), not distinct repeat incidents (the frozen definition gives timeout 25). The answer is consistent with its own SQL result and with the retrieved case, so the trace shows an upstream error, not a generation hallucination. Frozen and post-hoc attribution agree: propagated from SQL."
+ }
+}

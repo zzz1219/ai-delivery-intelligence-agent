@@ -1,0 +1,263 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "H1",
+ "kind": "sealed_evaluation",
+ "title": "Database vs other: resolution time",
+ "role": "success_example",
+ "question": "Among closed incidents, are database incidents slower to resolve on average than non-database incidents? Across closed incidents, which root cause has the highest mean resolution time, and what does its troubleshooting guide recommend checking first?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T00:40:03",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": true,
+  "retrieval_depends_on_sql": true,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Calculate the average resolution time for closed database incidents versus closed non-database incidents."
+   },
+   {
+    "task_id": "t2",
+    "description": "Find the mean resolution time for closed incidents grouped by root cause to identify the root cause with the highest mean resolution time."
+   }
+  ],
+  "retrieval_purpose": "Look up the troubleshooting guide for the root cause with the highest mean resolution time to see what it recommends checking first."
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Calculate the average resolution time for closed database incidents versus closed non-database incidents.",
+   "status": "ok",
+   "sql": "SELECT \n    CASE \n        WHEN c.layer = 'database' THEN 'database'\n        ELSE 'non-database'\n    END AS incident_type,\n    AVG((julianday(i.resolved_at) - julianday(i.reported_at)) * 24) AS avg_resolution_time_hours\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE i.status = 'closed'\nGROUP BY \n    CASE \n        WHEN c.layer = 'database' THEN 'database'\n        ELSE 'non-database'\n    END",
+   "attempts": 1,
+   "columns": [
+    "incident_type",
+    "avg_resolution_time_hours"
+   ],
+   "rows": [
+    [
+     "database",
+     38.42820512904571
+    ],
+    [
+     "non-database",
+     16.741780821897397
+    ]
+   ],
+   "row_count": 2,
+   "error": null
+  },
+  {
+   "task_id": "t2",
+   "description": "Find the mean resolution time for closed incidents grouped by root cause to identify the root cause with the highest mean resolution time.",
+   "status": "ok",
+   "sql": "SELECT \n    root_cause, \n    AVG((julianday(resolved_at) - julianday(reported_at)) * 24) AS mean_resolution_time_hours\nFROM incidents\nWHERE status = 'closed'\nGROUP BY root_cause\nORDER BY mean_resolution_time_hours DESC\nLIMIT 1",
+   "attempts": 1,
+   "columns": [
+    "root_cause",
+    "mean_resolution_time_hours"
+   ],
+   "rows": [
+    [
+     "connection_pool_exhausted",
+     41.07333333268762
+    ]
+   ],
+   "row_count": 1,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Calculate the average resolution time for closed database incidents versus closed non-database incidents.",
+   "kind": "bar",
+   "x": "incident_type",
+   "y": "avg_resolution_time_hours",
+   "sort": "y_desc",
+   "orientation": "v",
+   "unit": "hours",
+   "reason": "2 categories"
+  },
+  {
+   "task_id": "t2",
+   "title": "Find the mean resolution time for closed incidents grouped by root cause to identify the root cause with the highest mea",
+   "kind": "kpi",
+   "kpis": [
+    {
+     "column": "mean_resolution_time_hours",
+     "label_columns": [
+      "root_cause"
+     ]
+    }
+   ],
+   "unit": "hours",
+   "reason": "one row with 1 numeric value(s)"
+  }
+ ],
+ "retrieval": {
+  "status": "ok",
+  "purpose": "Look up the troubleshooting guide for the root cause with the highest mean resolution time to see what it recommends checking first.",
+  "queries": [
+   "connection_pool_exhausted troubleshooting guide check first"
+  ],
+  "context_ids": [
+   "historical_cases/INC_0005",
+   "troubleshooting_guides/connection_pool_exhausted",
+   "troubleshooting_guides/bulk_import_performance"
+  ],
+  "documents": [
+   {
+    "doc_id": "historical_cases/INC_0005",
+    "lane": "cases",
+    "title": "Incident Case INC_0005",
+    "sections": {
+     "symptoms": "Users saw intermittent 'cannot acquire connection' errors during peak hours; response time climbed until restart.",
+     "investigation": "Pool metrics showed active connections pinned at the maximum while idle time was near zero; some connections were never returned.",
+     "root cause": "Intermittent failures under load were traced to connection pool exhaustion.",
+     "resolution": "Increased the connection pool size and tuned idle and acquisition timeouts.",
+     "lessons learned": "Size pools for peak concurrency and alert on pool saturation.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0005",
+     "project": "Land Survey Management System (P02), government sector",
+     "component": "Primary Database (C01)",
+     "environment": "cloud, version v3.0",
+     "severity": "critical",
+     "root_cause": "connection_pool_exhausted",
+     "solution_pattern": "increase_pool_size_and_timeouts"
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/connection_pool_exhausted",
+    "lane": "guides",
+    "title": "Connection Pool Exhaustion",
+    "sections": {
+     "typical symptoms": "Intermittent 'cannot acquire connection' errors at peak load; recovery after restart.",
+     "recommended diagnostic order": "1. Check pool metrics: active vs idle connections and wait time.\n2. Look for code paths that do not return connections (leaks).\n3. Compare pool size with peak concurrency across all nodes.\n4. Review idle and acquisition timeout settings.",
+     "common fixes": "- Increase pool size and tune timeouts.\n- Patch leaking data-access paths."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/bulk_import_performance",
+    "lane": "guides",
+    "title": "Bulk Import Performance and Failures",
+    "sections": {
+     "typical symptoms": "Importing millions of records stalls, fails, or leaves the system slow afterwards.",
+     "recommended diagnostic order": "1. Check the import batch size and transaction length first.\n2. Check whether indexes are rebuilt after every batch.\n3. Check memory and lock-wait metrics during the load.\n4. After the load, verify indexes and statistics (see slow query guide).",
+     "common fixes": "- Reduce batch size and pause index rebuilding until the load finishes."
+    }
+   }
+  ]
+ },
+ "answer": "Yes, database incidents are slower to resolve on average (38.43 hours) than non-database incidents (16.74 hours) [sql:t1]. \n\nAcross closed incidents, the root cause with the highest mean resolution time is `connection_pool_exhausted` with a mean resolution time of 41.07 hours [sql:t2]. \n\nFor this root cause, the troubleshooting guide recommends checking pool metrics (active vs. idle connections and wait time) first [troubleshooting_guides/connection_pool_exhausted].",
+ "findings": [
+  {
+   "text": "Yes, database incidents are slower to resolve on average (38.43 hours) than non-database incidents (16.74 hours) [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "Across closed incidents, the root cause with the highest mean resolution time is `connection_pool_exhausted` with a mean resolution time of 41.07 hours [sql:t2].",
+   "sql_tasks": [
+    "t2"
+   ],
+   "docs": []
+  },
+  {
+   "text": "For this root cause, the troubleshooting guide recommends checking pool metrics (active vs. idle connections and wait time) first [troubleshooting_guides/connection_pool_exhausted].",
+   "sql_tasks": [],
+   "docs": [
+    "troubleshooting_guides/connection_pool_exhausted"
+   ]
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 2,
+  "sql_tasks_ok": 2,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 3,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "ok",
+  "documents_in_context": 3,
+  "visualization": "selected by deterministic rules (no model involved)"
+ },
+ "evaluation": {
+  "benchmark": "hybrid-1.0",
+  "benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "run_file": "hyb_gemini_gemini-3_5-flash-lite_20261007_004003.json",
+  "question_id": "H1",
+  "scoring": "final, sealed",
+  "provenance": "human scores proposed by an external reviewer, verified against the run, adopted by the project author",
+  "route_compliant": true,
+  "sql_facts": [
+   {
+    "id": "H1-s1",
+    "statement": "The mean resolution time of closed database incidents is 38.4 hours.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H1-s2",
+    "statement": "The mean resolution time of closed non-database incidents is 16.7 hours.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H1-s3",
+    "statement": "Database incidents are slower to resolve than non-database incidents.",
+    "machine_matched_task": null,
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H1-s4",
+    "statement": "The root cause with the highest mean resolution time is connection_pool_exhausted.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H1-s5",
+    "statement": "Its mean resolution time is 41.1 hours.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   }
+  ],
+  "doc_facts": [
+   {
+    "id": "H1-d1",
+    "statement": "Its troubleshooting guide recommends checking first: Check pool metrics: active vs idle connections and wait time.",
+    "evidence_in_agent_context": true,
+    "evidence_in_oracle_context": true,
+    "covered": true,
+    "frozen_attribution": "covered",
+    "posthoc_attribution": "covered"
+   }
+  ],
+  "requirements": [],
+  "unsupported_claims": 0,
+  "oracle_context_ids": [
+   "historical_cases/INC_0005",
+   "troubleshooting_guides/connection_pool_exhausted",
+   "troubleshooting_guides/bulk_import_performance"
+  ],
+  "oracle_note": "documents the benchmark's standard queries retrieve; a diagnostic that was never shown to any model",
+  "case_note": "All SQL facts, the guide's first check and every citation are correct."
+ }
+}

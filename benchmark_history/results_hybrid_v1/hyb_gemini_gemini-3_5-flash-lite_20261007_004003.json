@@ -1,0 +1,436 @@
+{
+  "meta": {
+    "model": "gemini:gemini-3.5-flash-lite",
+    "state": "complete",
+    "complete": true,
+    "hybrid_spec_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+    "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+    "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+    "started_at": "2026-10-07T00:40:03",
+    "lanes": {
+      "cases_per_query": 1,
+      "guides_per_query": 2
+    },
+    "deviation_from_registered_model": false,
+    "registered_model": "gemini-3.5-flash-lite"
+  },
+  "results": [
+    {
+      "id": "H1",
+      "question": "Among closed incidents, are database incidents slower to resolve on average than non-database incidents? Across closed incidents, which root cause has the highest mean resolution time, and what does its troubleshooting guide recommend checking first?",
+      "status": "ok",
+      "plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true,
+        "sql_tasks": [
+          {
+            "task_id": "t1",
+            "description": "Calculate the average resolution time for closed database incidents versus closed non-database incidents."
+          },
+          {
+            "task_id": "t2",
+            "description": "Find the mean resolution time for closed incidents grouped by root cause to identify the root cause with the highest mean resolution time."
+          }
+        ],
+        "retrieval_purpose": "Look up the troubleshooting guide for the root cause with the highest mean resolution time to see what it recommends checking first."
+      },
+      "plan_raw": "```json\n{\n  \"requires_sql\": true,\n  \"requires_retrieval\": true,\n  \"retrieval_depends_on_sql\": true,\n  \"sql_tasks\": [\n    {\n      \"task_id\": \"t1\",\n      \"description\": \"Calculate the average resolution time for closed database incidents versus closed non-database incidents.\"\n    },\n    {\n      \"task_id\": \"t2\",\n      \"description\": \"Find the mean resolution time for closed incidents grouped by root cause to identify the root cause with the highest mean resolution time.\"\n    }\n  ],\n  \"retrieval_purpose\": \"Look up the troubleshooting guide for the root cause with the highest mean resolution time to see what it recommends checking first.\"\n}\n```",
+      "tasks": [
+        {
+          "task_id": "t1",
+          "description": "Calculate the average resolution time for closed database incidents versus closed non-database incidents.",
+          "status": "ok",
+          "sql": "SELECT \n    CASE \n        WHEN c.layer = 'database' THEN 'database'\n        ELSE 'non-database'\n    END AS incident_type,\n    AVG((julianday(i.resolved_at) - julianday(i.reported_at)) * 24) AS avg_resolution_time_hours\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE i.status = 'closed'\nGROUP BY \n    CASE \n        WHEN c.layer = 'database' THEN 'database'\n        ELSE 'non-database'\n    END",
+          "attempts": 1,
+          "columns": [
+            "incident_type",
+            "avg_resolution_time_hours"
+          ],
+          "rows": [
+            [
+              "database",
+              38.42820512904571
+            ],
+            [
+              "non-database",
+              16.741780821897397
+            ]
+          ],
+          "row_count": 2,
+          "error": null
+        },
+        {
+          "task_id": "t2",
+          "description": "Find the mean resolution time for closed incidents grouped by root cause to identify the root cause with the highest mean resolution time.",
+          "status": "ok",
+          "sql": "SELECT \n    root_cause, \n    AVG((julianday(resolved_at) - julianday(reported_at)) * 24) AS mean_resolution_time_hours\nFROM incidents\nWHERE status = 'closed'\nGROUP BY root_cause\nORDER BY mean_resolution_time_hours DESC\nLIMIT 1",
+          "attempts": 1,
+          "columns": [
+            "root_cause",
+            "mean_resolution_time_hours"
+          ],
+          "rows": [
+            [
+              "connection_pool_exhausted",
+              41.07333333268762
+            ]
+          ],
+          "row_count": 1,
+          "error": null
+        }
+      ],
+      "queries": [
+        "connection_pool_exhausted troubleshooting guide check first"
+      ],
+      "query_status": "ok",
+      "context_ids": [
+        "historical_cases/INC_0005",
+        "troubleshooting_guides/connection_pool_exhausted",
+        "troubleshooting_guides/bulk_import_performance"
+      ],
+      "oracle_context_ids": [
+        "historical_cases/INC_0005",
+        "troubleshooting_guides/connection_pool_exhausted",
+        "troubleshooting_guides/bulk_import_performance"
+      ],
+      "answer": "Yes, database incidents are slower to resolve on average (38.43 hours) than non-database incidents (16.74 hours) [sql:t1]. \n\nAcross closed incidents, the root cause with the highest mean resolution time is `connection_pool_exhausted` with a mean resolution time of 41.07 hours [sql:t2]. \n\nFor this root cause, the troubleshooting guide recommends checking pool metrics (active vs. idle connections and wait time) first [troubleshooting_guides/connection_pool_exhausted]."
+    },
+    {
+      "id": "H2",
+      "question": "Define a repeat incident as a closed incident for which at least one other closed incident exists with the same project, component and root cause within 90 days (before or after it). Under this definition, which root cause has the most repeat incidents, and what lesson learned is recorded in similar historical cases?",
+      "status": "ok",
+      "plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true,
+        "sql_tasks": [
+          {
+            "task_id": "t1",
+            "description": "Identify all closed incidents with their project, component, root cause, and incident dates, then find pairs of closed incidents for the same project, component, and root cause where the incident dates are within 90 days of each other, and aggregate the count of repeat incidents per root cause to find the root cause with the most repeat incidents."
+          }
+        ],
+        "retrieval_purpose": "Look up historical incident case reports and lessons learned for the specific root cause identified by the SQL query as having the most repeat incidents."
+      },
+      "plan_raw": "```json\n{\n  \"requires_sql\": true,\n  \"requires_retrieval\": true,\n  \"retrieval_depends_on_sql\": true,\n  \"sql_tasks\": [\n    {\n      \"task_id\": \"t1\",\n      \"description\": \"Identify all closed incidents with their project, component, root cause, and incident dates, then find pairs of closed incidents for the same project, component, and root cause where the incident dates are within 90 days of each other, and aggregate the count of repeat incidents per root cause to find the root cause with the most repeat incidents.\"\n    }\n  ],\n  \"retrieval_purpose\": \"Look up historical incident case reports and lessons learned for the specific root cause identified by the SQL query as having the most repeat incidents.\"\n}\n```",
+      "tasks": [
+        {
+          "task_id": "t1",
+          "description": "Identify all closed incidents with their project, component, root cause, and incident dates, then find pairs of closed incidents for the same project, component, and root cause where the incident dates are within 90 days of each other, and aggregate the count of repeat incidents per root cause to find the root cause with the most repeat incidents.",
+          "status": "ok",
+          "sql": "WITH closed_incidents AS (\n    SELECT \n        i.incident_id,\n        i.project_id,\n        i.component_id,\n        i.root_cause,\n        i.reported_at\n    FROM incidents i\n    WHERE i.status = 'closed'\n    AND i.root_cause IS NOT NULL\n),\nrepeat_pairs AS (\n    SELECT \n        i1.root_cause\n    FROM closed_incidents i1\n    JOIN closed_incidents i2 \n        ON i1.project_id = i2.project_id\n        AND i1.component_id = i2.component_id\n        AND i1.root_cause = i2.root_cause\n        AND i1.incident_id < i2.incident_id\n        AND julianday(i2.reported_at) >= julianday(i1.reported_at)\n        AND julianday(i2.reported_at) <= julianday(i1.reported_at) + 90\n)\nSELECT \n    root_cause,\n    COUNT(*) AS repeat_incident_count\nFROM repeat_pairs\nGROUP BY root_cause\nORDER BY repeat_incident_count DESC\nLIMIT 1",
+          "attempts": 1,
+          "columns": [
+            "root_cause",
+            "repeat_incident_count"
+          ],
+          "rows": [
+            [
+              "crs_mismatch",
+              37
+            ]
+          ],
+          "row_count": 1,
+          "error": null
+        }
+      ],
+      "queries": [
+        "historical incident case reports lessons learned crs_mismatch",
+        "crs_mismatch root cause troubleshooting guide lessons learned"
+      ],
+      "query_status": "ok",
+      "context_ids": [
+        "historical_cases/INC_0015",
+        "troubleshooting_guides/crs_mismatch",
+        "troubleshooting_guides/bulk_import_performance"
+      ],
+      "oracle_context_ids": [
+        "historical_cases/INC_0036",
+        "troubleshooting_guides/service_timeouts",
+        "deployment_guides/distributed_deployment"
+      ],
+      "answer": "Based on the SQL analysis, the root cause with the most repeat incidents is `crs_mismatch` with 37 repeat incidents [sql:t1]. \n\nFor this root cause, symptomatically similar historical cases record the following lesson learned: validate the spatial reference of incoming data before loading [historical_cases/INC_0015]."
+    },
+    {
+      "id": "H3",
+      "question": "For closed critical incidents in distributed deployments, what is the mean resolution time and how many such incidents are there? What is the most common root cause among them, and what does its troubleshooting guide recommend checking first?",
+      "status": "ok",
+      "plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true,
+        "sql_tasks": [
+          {
+            "task_id": "t1",
+            "description": "Calculate the mean resolution time and total count of closed critical incidents in distributed deployments."
+          },
+          {
+            "task_id": "t2",
+            "description": "Find the most common root cause among closed critical incidents in distributed deployments."
+          }
+        ],
+        "retrieval_purpose": "Look up the troubleshooting guide for the most common root cause of critical distributed incidents to find what it recommends checking first."
+      },
+      "plan_raw": "```json\n{\n  \"requires_sql\": true,\n  \"requires_retrieval\": true,\n  \"retrieval_depends_on_sql\": true,\n  \"sql_tasks\": [\n    {\n        \"task_id\": \"t1\",\n        \"description\": \"Calculate the mean resolution time and total count of closed critical incidents in distributed deployments.\"\n    },\n    {\n        \"task_id\": \"t2\",\n        \"description\": \"Find the most common root cause among closed critical incidents in distributed deployments.\"\n    }\n  ],\n  \"retrieval_purpose\": \"Look up the troubleshooting guide for the most common root cause of critical distributed incidents to find what it recommends checking first.\"\n}\n```",
+      "tasks": [
+        {
+          "task_id": "t1",
+          "description": "Calculate the mean resolution time and total count of closed critical incidents in distributed deployments.",
+          "status": "ok",
+          "sql": "SELECT \n    AVG((julianday(i.resolved_at) - julianday(i.reported_at)) * 24) AS mean_resolution_time_hours,\n    COUNT(i.incident_id) AS total_closed_critical_incidents\nFROM incidents i\nJOIN deployments d ON i.deployment_id = d.deployment_id\nWHERE i.status = 'closed'\n  AND i.severity = 'critical'\n  AND d.env_type = 'distributed'",
+          "attempts": 1,
+          "columns": [
+            "mean_resolution_time_hours",
+            "total_closed_critical_incidents"
+          ],
+          "rows": [
+            [
+              35.43749999720603,
+              8
+            ]
+          ],
+          "row_count": 1,
+          "error": null
+        },
+        {
+          "task_id": "t2",
+          "description": "Find the most common root cause among closed critical incidents in distributed deployments.",
+          "status": "ok",
+          "sql": "SELECT i.root_cause, COUNT(*) AS incident_count\nFROM incidents i\nJOIN deployments d ON i.deployment_id = d.deployment_id\nWHERE i.status = 'closed'\n  AND i.severity = 'critical'\n  AND d.env_type = 'distributed'\n  AND i.root_cause IS NOT NULL\nGROUP BY i.root_cause\nORDER BY incident_count DESC\nLIMIT 1",
+          "attempts": 1,
+          "columns": [
+            "root_cause",
+            "incident_count"
+          ],
+          "rows": [
+            [
+              "timeout",
+              4
+            ]
+          ],
+          "row_count": 1,
+          "error": null
+        }
+      ],
+      "queries": [
+        "timeout troubleshooting guide check first"
+      ],
+      "query_status": "ok",
+      "context_ids": [
+        "historical_cases/INC_0054",
+        "troubleshooting_guides/bulk_import_performance",
+        "troubleshooting_guides/service_timeouts"
+      ],
+      "oracle_context_ids": [
+        "historical_cases/INC_0054",
+        "troubleshooting_guides/bulk_import_performance",
+        "troubleshooting_guides/service_timeouts"
+      ],
+      "answer": "For closed critical incidents in distributed deployments, there are 8 such incidents [sql:t1] with a mean resolution time of approximately 35.44 hours [sql:t1]. The most common root cause among them is timeout, accounting for 4 incidents [sql:t2]. \n\nFor this root cause, the troubleshooting guide recommends checking the following first:\n1. Compare gateway, service and database timeouts for consistency [troubleshooting_guides/service_timeouts].\n2. Check whether backends are still processing when the gateway gives up [troubleshooting_guides/service_timeouts].\n3. In distributed deployments, check node-to-node latency and load balancer health checks [troubleshooting_guides/service_timeouts].\n4. Review recent version upgrades for changed defaults [troubleshooting_guides/service_timeouts].\n\nAdditionally, historical case `historical_cases/INC_0054` describes a symptomatically similar precedent where users experienced long waits followed by timeout errors in a distributed environment [historical_cases/INC_0054]."
+    },
+    {
+      "id": "H4",
+      "question": "Did map-service incidents spike in 2026 Q1 compared with the surrounding quarters? Which deployment version was associated with most of the Q1 incidents, does the available evidence establish that this version caused the spike, and what concrete failure mode is documented in at least one relevant historical case?",
+      "status": "ok",
+      "plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true,
+        "sql_tasks": [
+          {
+            "task_id": "t1",
+            "description": "Calculate the total number of incidents for the map-service component per quarter for 2025 Q4, 2026 Q1, and 2026 Q2."
+          },
+          {
+            "task_id": "t2",
+            "description": "Find the deployment versions associated with map-service incidents during 2026 Q1, grouped by version and ordered by incident count."
+          }
+        ],
+        "retrieval_purpose": "Look up historical case reports or post-mortems for the identified map-service deployment version in 2026 Q1 to check if it caused the spike and to identify the concrete documented failure mode."
+      },
+      "plan_raw": "```json\n{\n  \"requires_sql\": true,\n  \"requires_retrieval\": true,\n  \"retrieval_depends_on_sql\": true,\n  \"sql_tasks\": [\n    {\n      \"task_id\": \"t1\",\n      \"description\": \"Calculate the total number of incidents for the map-service component per quarter for 2025 Q4, 2026 Q1, and 2026 Q2.\"\n    },\n    {\n      \"task_id\": \"t2\",\n      \"description\": \"Find the deployment versions associated with map-service incidents during 2026 Q1, grouped by version and ordered by incident count.\"\n    }\n  ],\n  \"retrieval_purpose\": \"Look up historical case reports or post-mortems for the identified map-service deployment version in 2026 Q1 to check if it caused the spike and to identify the concrete documented failure mode.\"\n}\n```",
+      "tasks": [
+        {
+          "task_id": "t1",
+          "description": "Calculate the total number of incidents for the map-service component per quarter for 2025 Q4, 2026 Q1, and 2026 Q2.",
+          "status": "ok",
+          "sql": "SELECT \n    CASE \n        WHEN reported_at >= '2025-10-01' AND reported_at < '2026-01-01' THEN '2025 Q4'\n        WHEN reported_at >= '2026-01-01' AND reported_at < '2026-04-01' THEN '2026 Q1'\n        WHEN reported_at >= '2026-04-01' AND reported_at < '2026-07-01' THEN '2026 Q2'\n    END AS quarter,\n    COUNT(i.incident_id) AS total_incidents\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE c.layer = 'map_service'\n  AND reported_at >= '2025-10-01' AND reported_at < '2026-07-01'\nGROUP BY quarter\nORDER BY quarter",
+          "attempts": 1,
+          "columns": [
+            "quarter",
+            "total_incidents"
+          ],
+          "rows": [
+            [
+              "2025 Q4",
+              11
+            ],
+            [
+              "2026 Q1",
+              40
+            ],
+            [
+              "2026 Q2",
+              11
+            ]
+          ],
+          "row_count": 3,
+          "error": null
+        },
+        {
+          "task_id": "t2",
+          "description": "Find the deployment versions associated with map-service incidents during 2026 Q1, grouped by version and ordered by incident count.",
+          "status": "ok",
+          "sql": "SELECT \n    d.version,\n    COUNT(i.incident_id) AS incident_count\nFROM incidents i\nJOIN deployments d ON i.deployment_id = d.deployment_id\nWHERE (i.category = 'map_service' OR i.component_id IN (SELECT component_id FROM components WHERE layer = 'map_service'))\n  AND i.reported_at >= '2026-01-01 00:00:00'\n  AND i.reported_at < '2026-04-01 00:00:00'\nGROUP BY d.version\nORDER BY incident_count DESC",
+          "attempts": 1,
+          "columns": [
+            "version",
+            "incident_count"
+          ],
+          "rows": [
+            [
+              "v3.2",
+              32
+            ],
+            [
+              "v3.1",
+              8
+            ]
+          ],
+          "row_count": 2,
+          "error": null
+        }
+      ],
+      "queries": [
+        "map-service v3.2 incident root cause 2026 Q1 post-mortem",
+        "map-service v3.2 deployment failure mode incidents"
+      ],
+      "query_status": "ok",
+      "context_ids": [
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0075",
+        "troubleshooting_guides/service_publication_failures",
+        "troubleshooting_guides/tile_cache_issues",
+        "deployment_guides/single_node_deployment"
+      ],
+      "oracle_context_ids": [
+        "historical_cases/INC_0070",
+        "troubleshooting_guides/service_publication_failures",
+        "troubleshooting_guides/tile_cache_issues"
+      ],
+      "answer": "Map-service incidents did spike in 2026 Q1, totaling 40 incidents compared to 11 in 2025 Q4 and 11 in 2026 Q2 [sql:t1]. \n\nDeployment version v3.2 was associated with the majority of the Q1 incidents (32 incidents), while version v3.1 was associated with 8 [sql:t2]. However, the available evidence does not establish that version v3.2 caused the spike, as counts and co-occurrence only show an association rather than causation. \n\nA symptomatically similar historical case (`historical_cases/INC_0070`) documents a concrete failure mode where map tiles loaded slowly and some zoom levels rendered blank or stale due to a tile cache misconfiguration (`tile_cache_misconfig`), where scale-level settings did not match the published service after an upgrade [historical_cases/INC_0070]."
+    },
+    {
+      "id": "H5",
+      "question": "Which project currently has the most open incidents? For that project's open high-severity incidents in the map-service layer, have we seen similar cases before, and if so which?",
+      "status": "ok",
+      "plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true,
+        "sql_tasks": [
+          {
+            "task_id": "t1",
+            "description": "Identify the project with the currently highest count of open incidents."
+          },
+          {
+            "task_id": "t2",
+            "description": "List the open high-severity incidents for the identified project that are associated with the map-service layer, including their descriptions and symptoms."
+          }
+        ],
+        "retrieval_purpose": "Search historical incident case reports and troubleshooting guides for past cases similar to the open high-severity incidents in the map-service layer of the identified project."
+      },
+      "plan_raw": "```json\n{\n  \"requires_sql\": true,\n  \"requires_retrieval\": true,\n  \"retrieval_depends_on_sql\": true,\n  \"sql_tasks\": [\n    {\n      \"task_id\": \"t1\",\n      \"description\": \"Identify the project with the currently highest count of open incidents.\"\n    },\n    {\n      \"task_id\": \"t2\",\n      \"description\": \"List the open high-severity incidents for the identified project that are associated with the map-service layer, including their descriptions and symptoms.\"\n    }\n  ],\n  \"retrieval_purpose\": \"Search historical incident case reports and troubleshooting guides for past cases similar to the open high-severity incidents in the map-service layer of the identified project.\"\n}\n```",
+      "tasks": [
+        {
+          "task_id": "t1",
+          "description": "Identify the project with the currently highest count of open incidents.",
+          "status": "ok",
+          "sql": "SELECT \n    p.project_id,\n    p.name,\n    COUNT(i.incident_id) AS open_incident_count\nFROM projects p\nJOIN incidents i ON p.project_id = i.project_id\nWHERE i.status = 'open'\nGROUP BY p.project_id, p.name\nORDER BY open_incident_count DESC\nLIMIT 1",
+          "attempts": 1,
+          "columns": [
+            "project_id",
+            "name",
+            "open_incident_count"
+          ],
+          "rows": [
+            [
+              "P03",
+              "Grid Asset Mapping",
+              9
+            ]
+          ],
+          "row_count": 1,
+          "error": null
+        },
+        {
+          "task_id": "t2",
+          "description": "List the open high-severity incidents for the identified project that are associated with the map-service layer, including their descriptions and symptoms.",
+          "status": "ok",
+          "sql": "SELECT \n    i.incident_id,\n    i.project_id,\n    i.symptom_summary,\n    i.resolution_summary\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE i.status = 'open'\n  AND i.severity = 'high'\n  AND (c.layer = 'map_service' OR i.category = 'map_service')\nORDER BY i.reported_at",
+          "attempts": 1,
+          "columns": [
+            "incident_id",
+            "project_id",
+            "symptom_summary",
+            "resolution_summary"
+          ],
+          "rows": [
+            [
+              "INC_0185",
+              "P03",
+              "Map latency increased and tiles keep being regenerated instead of served from cache.",
+              null
+            ],
+            [
+              "INC_0188",
+              "P03",
+              "Map service cannot be published or starts in an error state after a configuration change.",
+              null
+            ],
+            [
+              "INC_0192",
+              "P03",
+              "Data loads fine but features appear in the wrong place.",
+              null
+            ],
+            [
+              "INC_0200",
+              "P03",
+              "Publishing the map service fails and the service stays unavailable.",
+              null
+            ]
+          ],
+          "row_count": 4,
+          "error": null
+        }
+      ],
+      "queries": [
+        "Grid Asset Mapping map latency tile regeneration cache",
+        "map service error state configuration change publishing fails",
+        "data loads fine features wrong place map service"
+      ],
+      "query_status": "ok",
+      "context_ids": [
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0016",
+        "historical_cases/INC_0049",
+        "troubleshooting_guides/tile_cache_issues",
+        "troubleshooting_guides/authentication_failures",
+        "troubleshooting_guides/service_publication_failures",
+        "troubleshooting_guides/crs_mismatch"
+      ],
+      "oracle_context_ids": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0016",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0100",
+        "troubleshooting_guides/tile_cache_issues",
+        "deployment_guides/single_node_deployment",
+        "troubleshooting_guides/service_publication_failures",
+        "troubleshooting_guides/crs_mismatch"
+      ],
+      "answer": "The project with the currently highest count of open incidents is Grid Asset Mapping (P03) with 9 open incidents [sql:t1]. \n\nFor project P03, the open high-severity incidents in the map-service layer are INC_0185, INC_0188, INC_0192, and INC_0200 [sql:t2]. \n\nRegarding similar past cases:\n- For INC_0192 (\"Data loads fine but features appear in the wrong place\" [sql:t2]), a symptomatically similar precedent is historical case INC_0049, where features displayed in the wrong location due to a coordinate system mismatch [historical_cases/INC_0049]. \n- For the other open high-severity map-service incidents (INC_0185, INC_0188, and INC_0200) [sql:t2], no documented similar case was found in the historical records."
+    }
+  ]
+}

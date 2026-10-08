@@ -1,0 +1,14 @@
+{
+  "format": "demo-questions-1.0",
+  "note": "Questions to RECORD with the frozen pipeline on the user's machine (needs GEMINI_API_KEY). expect_viz is only a hint printed after recording; it is never used to change a result.",
+  "questions": [
+    {"id": "A1", "role": "analytics", "title": "Monthly incident trend by service category",
+     "question": "How have incident volumes changed month by month across service categories?", "expect_viz": "line"},
+    {"id": "A2", "role": "analytics", "title": "Root causes of closed incidents",
+     "question": "Which root causes account for the most closed incidents?", "expect_viz": "bar"},
+    {"id": "A3", "role": "analytics", "title": "Average resolution time by component",
+     "question": "Which components have the highest average resolution time for closed incidents?", "expect_viz": "bar"},
+    {"id": "A4", "role": "analytics", "title": "Open incidents by project",
+     "question": "Which projects currently have the most open incidents?", "expect_viz": "bar"}
+  ]
+}

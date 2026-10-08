@@ -1,0 +1,615 @@
+{
+  "benchmark_version": "hybrid-1.0",
+  "frozen": true,
+  "depends_on": {
+    "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+    "data_seed": 58,
+    "lanes": "BM25 two-lane retrieval as in rag-generation-1.0"
+  },
+  "stages": {
+    "route": "ROUTE COMPLIANCE (not routing accuracy): the structured plan must say that SQL is needed, that retrieval is needed, and that the retrieval query depends on the SQL result (expected_plan). All five questions expect the same plan, so a planner that always answers 'hybrid' would score 5/5; SQL-only / RAG-only / direct-answer controls are out of scope",
+    "sql": "every sql_fact is found in the result of ONE SQL task (never in the union of all results), under the sql_binding rules; the SQL executed; machine matching is a screening step and the human rubric confirms each fact against the recorded task",
+    "retrieval": "the evidence of every doc_fact is in the context built from the AGENT's own retrieval queries; the same context rule is also run deterministically on the ORACLE queries (built from the gold SQL result) as a diagnostic control that is never shown to the model",
+    "synthesis": "the answer states the required facts, uses numbers consistent with the SQL results, cites only documents in the context, and respects the evidence boundary (association is not causation; no invented precedent)"
+  },
+  "failure_attribution": [
+    "order of the failure taxonomy: planner / route compliance -> SQL task or execution -> retrieval-query formulation -> retriever / context configuration -> synthesis; reported in four stages (planning, SQL, retrieval, synthesis) with the retrieval stage decomposed into query formulation vs retriever / context",
+    "if the SQL stage fails, downstream doc_facts are labelled 'propagated from SQL' and are not counted as retrieval failures",
+    "SQL correct, evidence absent from the agent's context, oracle-query context contains it -> retrieval-query formulation failure",
+    "SQL correct, evidence absent from the agent's context AND absent from the oracle-query context -> retriever / context failure",
+    "evidence present in the agent's context but missing in the answer -> synthesis failure",
+    "a doc_fact covered without evidence in the context is flagged (possible outside knowledge)"
+  ],
+  "information_boundary": [
+    "the agent sees the question, the public database (open incidents have no root cause) and the document corpus",
+    "the agent never sees ground_truth files, the true root causes of open incidents, or any gold value"
+  ],
+  "scoring": {
+    "primary": "stage-wise results with machine checks and a human rubric on all questions; no composite score",
+    "required_vs_bonus": "sql_facts, doc_facts and synthesis_requirements are required and form the primary denominators; bonus_facts are optional and reported separately",
+    "sql_fact_matching": "number: |value - gold| <= tolerance; integer: equal; string: equal ignoring case; boolean: stated; set: equal as sets",
+    "sql_binding": {
+      "scope": "each sql_fact must be found inside ONE SQL task result, never in the union of all results",
+      "same_row": [
+        [
+          "H1-s4",
+          "H1-s5"
+        ],
+        [
+          "H2-s1",
+          "H2-s2"
+        ],
+        [
+          "H3-s3",
+          "H3-s4"
+        ],
+        [
+          "H4-s5",
+          "H4-s6"
+        ],
+        [
+          "H5-s1",
+          "H5-s2"
+        ]
+      ],
+      "same_row_meaning": "an entity and its number must appear in the same row of the same result",
+      "max_rows_for_numbers": 30,
+      "max_rows_meaning": "a standalone number only counts when its result set has at most 30 rows (aggregates, not raw incident dumps)",
+      "set_rule": "H5-s3: the set of incident ids in one result equals the gold set exactly (no extra ids)",
+      "recorded_per_task": [
+        "task_id (chosen by the planner)",
+        "description",
+        "generated_sql",
+        "columns",
+        "rows"
+      ],
+      "why_not_planner_ids": "task ids are invented by the planner, so facts are bound by content (single result, same row, small result) instead of by name; separate tasks for the mean and for the count are therefore both accepted",
+      "confirmation": "machine matching is a screening step; the human rubric confirms every sql_fact against the recorded task"
+    },
+    "route_metric": "route compliance (requires_sql, requires_retrieval, retrieval_depends_on_sql); never reported as routing accuracy",
+    "retrieval_diagnostics": "the retrieval stage is run twice: once on the agent's own queries (scored) and once, deterministically, on the oracle queries (diagnostic only, never shown to the model); no extra LLM call is needed",
+    "evidence_split_for_doc_facts": [
+      "covered",
+      "missed_context_available (synthesis failure)",
+      "missed_evidence_not_retrieved (retrieval failure)",
+      "propagated_from_sql",
+      "covered_without_context_evidence (flag)"
+    ],
+    "secondary": "a frozen LLM judge may be added as a secondary experiment; agreement with the human rubric is reported",
+    "llm_calls": "not frozen: the number of LLM calls per question is an implementation detail"
+  },
+  "pre_registered": {
+    "oracle_plan": "retrieval queries are built from the gold SQL result with the templates stored in each question's oracle_queries",
+    "context_rule": "for every query: case lane top k then guide lane top k; all cases first (query order), then guides; duplicates removed",
+    "audit_rule": "smallest k_cases + k_guides per query (ties: fewer words, then fewer cases) such that the evidence of EVERY doc_fact of EVERY question is in the context; no model output is used",
+    "audit_grid": [
+      {
+        "cases_per_query": 1,
+        "guides_per_query": 1,
+        "total": 2,
+        "mean_context_words": 312,
+        "evidence": "H1:1/1 H2:1/1 H3:0/1 H4:1/1 H5:2/2",
+        "sufficient": false
+      },
+      {
+        "cases_per_query": 1,
+        "guides_per_query": 2,
+        "total": 3,
+        "mean_context_words": 395,
+        "evidence": "H1:1/1 H2:1/1 H3:1/1 H4:1/1 H5:2/2",
+        "sufficient": true
+      },
+      {
+        "cases_per_query": 1,
+        "guides_per_query": 3,
+        "total": 4,
+        "mean_context_words": 486,
+        "evidence": "H1:1/1 H2:1/1 H3:1/1 H4:1/1 H5:2/2",
+        "sufficient": true
+      },
+      {
+        "cases_per_query": 2,
+        "guides_per_query": 1,
+        "total": 3,
+        "mean_context_words": 521,
+        "evidence": "H1:1/1 H2:1/1 H3:0/1 H4:1/1 H5:2/2",
+        "sufficient": false
+      },
+      {
+        "cases_per_query": 2,
+        "guides_per_query": 2,
+        "total": 4,
+        "mean_context_words": 605,
+        "evidence": "H1:1/1 H2:1/1 H3:1/1 H4:1/1 H5:2/2",
+        "sufficient": true
+      },
+      {
+        "cases_per_query": 2,
+        "guides_per_query": 3,
+        "total": 5,
+        "mean_context_words": 696,
+        "evidence": "H1:1/1 H2:1/1 H3:1/1 H4:1/1 H5:2/2",
+        "sufficient": true
+      },
+      {
+        "cases_per_query": 3,
+        "guides_per_query": 1,
+        "total": 4,
+        "mean_context_words": 710,
+        "evidence": "H1:1/1 H2:1/1 H3:0/1 H4:1/1 H5:2/2",
+        "sufficient": false
+      },
+      {
+        "cases_per_query": 3,
+        "guides_per_query": 2,
+        "total": 5,
+        "mean_context_words": 794,
+        "evidence": "H1:1/1 H2:1/1 H3:1/1 H4:1/1 H5:2/2",
+        "sufficient": true
+      },
+      {
+        "cases_per_query": 3,
+        "guides_per_query": 3,
+        "total": 6,
+        "mean_context_words": 885,
+        "evidence": "H1:1/1 H2:1/1 H3:1/1 H4:1/1 H5:2/2",
+        "sufficient": true
+      }
+    ],
+    "selected": {
+      "cases_per_query": 1,
+      "guides_per_query": 2
+    }
+  },
+  "disclosures": [
+    "H1-H3 were rewritten after the SQL benchmark and the generation benchmark were completed: the earlier H1-H3 could be answered from SQL alone, and their anchors were fragile (16 vs 15, 11 vs 9).",
+    "Required facts follow what each question asks; lessons from the generation benchmark (checklist beyond the question wording) are applied.",
+    "H5 is restricted by a natural SQL filter (open, high severity, map-service layer) that yields 2 incidents without any documented case and 2 with documented cases of distinct root causes; this was chosen after inspecting the open incidents of the top project.",
+    "The repeat-incident definition is stated in H2's text and in its reference SQL (closed incidents only, +-90 days).",
+    "H5 is a deliberately selected diagnostic (challenge) slice, not a representative sample of open incidents.",
+    "Route compliance is not routing accuracy: all five questions expect the same plan; no SQL-only, RAG-only or direct-answer controls.",
+    "H4's fact H4-d1 requires a concrete failure mode; the remark 'shortly after the upgrade to v3.2' is temporal evidence only and is a bonus fact (a first draft of the spec accepted it as sufficient; fixed before any model run).",
+    "Five questions: a smoke-level benchmark, not a statistically meaningful sample."
+  ],
+  "sql_reference": {
+    "h1_groups": "SELECT CASE WHEN category='database' THEN 'database' ELSE 'other' END AS grp,\n  ROUND(AVG((julianday(resolved_at)-julianday(reported_at))*24),1) AS mean_hours, COUNT(*) AS n\nFROM incidents WHERE status='closed' GROUP BY grp",
+    "h1_root_causes": "SELECT root_cause, ROUND(AVG((julianday(resolved_at)-julianday(reported_at))*24),1) AS mean_hours, COUNT(*) AS n\nFROM incidents WHERE status='closed' GROUP BY root_cause ORDER BY mean_hours DESC",
+    "h2_repeat_by_root_cause": "-- repeat incident: a closed incident with another closed incident of the same project, component and root_cause within 90 days\nWITH r AS (SELECT DISTINCT a.incident_id AS id, a.root_cause AS rc FROM incidents a JOIN incidents b\n  ON a.project_id=b.project_id AND a.component_id=b.component_id AND a.root_cause=b.root_cause AND a.incident_id<>b.incident_id\n  AND ABS(julianday(a.reported_at)-julianday(b.reported_at))<=90 WHERE a.status='closed' AND b.status='closed')\nSELECT rc, COUNT(*) AS repeat_incidents FROM r GROUP BY rc ORDER BY repeat_incidents DESC",
+    "h3_critical_distributed": "SELECT ROUND(AVG((julianday(i.resolved_at)-julianday(i.reported_at))*24),1) AS mean_hours, COUNT(*) AS n\nFROM incidents i JOIN deployments d ON d.deployment_id=i.deployment_id\nWHERE i.severity='critical' AND d.env_type='distributed' AND i.status='closed'",
+    "h3_root_causes": "SELECT i.root_cause, COUNT(*) AS n FROM incidents i JOIN deployments d ON d.deployment_id=i.deployment_id\nWHERE i.severity='critical' AND d.env_type='distributed' AND i.status='closed' GROUP BY i.root_cause ORDER BY n DESC",
+    "h4_quarters": "SELECT strftime('%Y',reported_at)||'-Q'||((CAST(strftime('%m',reported_at) AS INTEGER)+2)/3) AS quarter, COUNT(*) AS incidents\nFROM incidents WHERE category='map_service' GROUP BY quarter ORDER BY quarter",
+    "h4_q1_versions": "SELECT d.version, COUNT(*) AS incidents FROM incidents i JOIN deployments d ON d.deployment_id=i.deployment_id\nWHERE i.category='map_service' AND i.reported_at >= '2026-01-01' AND i.reported_at < '2026-04-01'\nGROUP BY d.version ORDER BY incidents DESC",
+    "h5_open_by_project": "SELECT project_id, COUNT(*) AS open_incidents FROM incidents WHERE status='open' GROUP BY project_id ORDER BY open_incidents DESC",
+    "h5_incidents": "SELECT i.incident_id, i.component_id, c.name, d.env_type, i.symptom_summary FROM incidents i\nJOIN components c ON c.component_id=i.component_id JOIN deployments d ON d.deployment_id=i.deployment_id\nWHERE i.status='open' AND i.severity='high' AND i.category='map_service' AND i.project_id=:project_id ORDER BY i.incident_id"
+  },
+  "questions": [
+    {
+      "id": "H1",
+      "expected_plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true
+      },
+      "question": "Among closed incidents, are database incidents slower to resolve on average than non-database incidents? Across closed incidents, which root cause has the highest mean resolution time, and what does its troubleshooting guide recommend checking first?",
+      "sql_reference": [
+        "h1_groups",
+        "h1_root_causes"
+      ],
+      "sql_facts": [
+        {
+          "id": "H1-s1",
+          "statement": "The mean resolution time of closed database incidents is 38.4 hours.",
+          "gold": 38.4,
+          "match": {
+            "kind": "number",
+            "tolerance": 0.15
+          }
+        },
+        {
+          "id": "H1-s2",
+          "statement": "The mean resolution time of closed non-database incidents is 16.7 hours.",
+          "gold": 16.7,
+          "match": {
+            "kind": "number",
+            "tolerance": 0.15
+          }
+        },
+        {
+          "id": "H1-s3",
+          "statement": "Database incidents are slower to resolve than non-database incidents.",
+          "gold": true,
+          "match": {
+            "kind": "boolean"
+          }
+        },
+        {
+          "id": "H1-s4",
+          "statement": "The root cause with the highest mean resolution time is connection_pool_exhausted.",
+          "gold": "connection_pool_exhausted",
+          "match": {
+            "kind": "string"
+          }
+        },
+        {
+          "id": "H1-s5",
+          "statement": "Its mean resolution time is 41.1 hours.",
+          "gold": 41.1,
+          "match": {
+            "kind": "number",
+            "tolerance": 0.15
+          }
+        }
+      ],
+      "doc_facts": [
+        {
+          "id": "H1-d1",
+          "kind": "guide_fact",
+          "statement": "Its troubleshooting guide recommends checking first: Check pool metrics: active vs idle connections and wait time.",
+          "evidence_docs": [
+            "troubleshooting_guides/connection_pool_exhausted"
+          ]
+        }
+      ],
+      "bonus_facts": [
+        "The remaining diagnostic steps and the common fixes of that guide."
+      ],
+      "oracle_queries": [
+        "troubleshooting guide diagnostic order first check for connection_pool_exhausted"
+      ]
+    },
+    {
+      "id": "H2",
+      "expected_plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true
+      },
+      "question": "Define a repeat incident as a closed incident for which at least one other closed incident exists with the same project, component and root cause within 90 days (before or after it). Under this definition, which root cause has the most repeat incidents, and what lesson learned is recorded in similar historical cases?",
+      "sql_reference": [
+        "h2_repeat_by_root_cause"
+      ],
+      "sql_facts": [
+        {
+          "id": "H2-s1",
+          "statement": "The root cause with the most repeat incidents is timeout.",
+          "gold": "timeout",
+          "match": {
+            "kind": "string"
+          }
+        },
+        {
+          "id": "H2-s2",
+          "statement": "It has 25 repeat incidents.",
+          "gold": 25,
+          "match": {
+            "kind": "integer"
+          }
+        }
+      ],
+      "doc_facts": [
+        {
+          "id": "H2-d1",
+          "kind": "case_fact",
+          "statement": "The lesson learned recorded in similar historical cases: Keep timeouts consistent across gateway, services and database.",
+          "evidence": {
+            "all_of": [
+              "Keep timeouts consistent across gateway, services and database."
+            ]
+          },
+          "relevant_cases": [
+            "historical_cases/INC_0003",
+            "historical_cases/INC_0008",
+            "historical_cases/INC_0009",
+            "historical_cases/INC_0011",
+            "historical_cases/INC_0027",
+            "historical_cases/INC_0028",
+            "historical_cases/INC_0031",
+            "historical_cases/INC_0036",
+            "historical_cases/INC_0054",
+            "historical_cases/INC_0071",
+            "historical_cases/INC_0086",
+            "historical_cases/INC_0117",
+            "historical_cases/INC_0138",
+            "historical_cases/INC_0151",
+            "historical_cases/INC_0152",
+            "historical_cases/INC_0165",
+            "historical_cases/INC_0181"
+          ]
+        }
+      ],
+      "bonus_facts": [
+        "The resolution approaches recorded in those cases."
+      ],
+      "oracle_queries": [
+        "lessons learned from historical timeout incidents"
+      ]
+    },
+    {
+      "id": "H3",
+      "expected_plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true
+      },
+      "question": "For closed critical incidents in distributed deployments, what is the mean resolution time and how many such incidents are there? What is the most common root cause among them, and what does its troubleshooting guide recommend checking first?",
+      "sql_reference": [
+        "h3_critical_distributed",
+        "h3_root_causes"
+      ],
+      "sql_facts": [
+        {
+          "id": "H3-s1",
+          "statement": "The mean resolution time is 35.4 hours.",
+          "gold": 35.4,
+          "match": {
+            "kind": "number",
+            "tolerance": 0.15
+          }
+        },
+        {
+          "id": "H3-s2",
+          "statement": "There are 8 such incidents.",
+          "gold": 8,
+          "match": {
+            "kind": "integer"
+          }
+        },
+        {
+          "id": "H3-s3",
+          "statement": "The most common root cause among them is timeout.",
+          "gold": "timeout",
+          "match": {
+            "kind": "string"
+          }
+        },
+        {
+          "id": "H3-s4",
+          "statement": "It accounts for 4 of them.",
+          "gold": 4,
+          "match": {
+            "kind": "integer"
+          }
+        }
+      ],
+      "doc_facts": [
+        {
+          "id": "H3-d1",
+          "kind": "guide_fact",
+          "statement": "Its troubleshooting guide recommends checking first: Compare gateway, service and database timeouts for consistency.",
+          "evidence_docs": [
+            "troubleshooting_guides/service_timeouts"
+          ]
+        }
+      ],
+      "bonus_facts": [
+        "The remaining diagnostic steps and the common fixes of that guide."
+      ],
+      "oracle_queries": [
+        "troubleshooting guide diagnostic order first check for timeout"
+      ]
+    },
+    {
+      "id": "H4",
+      "expected_plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true
+      },
+      "question": "Did map-service incidents spike in 2026 Q1 compared with the surrounding quarters? Which deployment version was associated with most of the Q1 incidents, does the available evidence establish that this version caused the spike, and what concrete failure mode is documented in at least one relevant historical case?",
+      "sql_reference": [
+        "h4_quarters",
+        "h4_q1_versions"
+      ],
+      "sql_facts": [
+        {
+          "id": "H4-s1",
+          "statement": "Map-service incidents in 2025-Q4: 11.",
+          "gold": 11,
+          "match": {
+            "kind": "integer"
+          }
+        },
+        {
+          "id": "H4-s2",
+          "statement": "Map-service incidents in 2026-Q1: 40.",
+          "gold": 40,
+          "match": {
+            "kind": "integer"
+          }
+        },
+        {
+          "id": "H4-s3",
+          "statement": "Map-service incidents in 2026-Q2: 11.",
+          "gold": 11,
+          "match": {
+            "kind": "integer"
+          }
+        },
+        {
+          "id": "H4-s4",
+          "statement": "Map-service incidents in 2026-Q3: 14.",
+          "gold": 14,
+          "match": {
+            "kind": "integer"
+          }
+        },
+        {
+          "id": "H4-s5",
+          "statement": "The version associated with most Q1 incidents is v3.2.",
+          "gold": "v3.2",
+          "match": {
+            "kind": "string"
+          }
+        },
+        {
+          "id": "H4-s6",
+          "statement": "v3.2 accounts for 32 of the 40 Q1 incidents.",
+          "gold": 32,
+          "match": {
+            "kind": "integer"
+          }
+        }
+      ],
+      "synthesis_requirements": [
+        {
+          "id": "H4-y1",
+          "statement": "The answer says the spike coincides with / is associated with the version."
+        },
+        {
+          "id": "H4-y2",
+          "statement": "The answer does not present the version as the established cause of the spike (the incident counts alone establish association, not causation); citing a documented mechanism in individual cases as a plausible explanation is allowed."
+        }
+      ],
+      "doc_facts": [
+        {
+          "id": "H4-d1",
+          "kind": "case_fact",
+          "statement": "At least one documented map-service case from 2026 Q1 describes a concrete failure mode (for example tile-cache scale levels reset to defaults, request timeouts, or a coordinate-system mismatch).",
+          "evidence": {
+            "any_of": [
+              "Root cause: tile_cache_misconfig",
+              "Root cause: timeout",
+              "Root cause: crs_mismatch"
+            ]
+          },
+          "relevant_cases": [
+            "historical_cases/INC_0042",
+            "historical_cases/INC_0043",
+            "historical_cases/INC_0046",
+            "historical_cases/INC_0049",
+            "historical_cases/INC_0050",
+            "historical_cases/INC_0051",
+            "historical_cases/INC_0052",
+            "historical_cases/INC_0054",
+            "historical_cases/INC_0058",
+            "historical_cases/INC_0070",
+            "historical_cases/INC_0071",
+            "historical_cases/INC_0074",
+            "historical_cases/INC_0085",
+            "historical_cases/INC_0100"
+          ]
+        }
+      ],
+      "bonus_facts": [
+        "All documented failure modes of Q1 map-service cases (tile cache, timeouts, coordinate-system mismatch).",
+        "Some cases state that the problem first appeared shortly after the upgrade to v3.2 (temporal evidence only; it does not by itself satisfy the failure-mode fact)."
+      ],
+      "oracle_queries": [
+        "map_service incidents after the upgrade to v3.2 documented failure modes"
+      ]
+    },
+    {
+      "id": "H5",
+      "expected_plan": {
+        "requires_sql": true,
+        "requires_retrieval": true,
+        "retrieval_depends_on_sql": true
+      },
+      "question": "Which project currently has the most open incidents? For that project's open high-severity incidents in the map-service layer, have we seen similar cases before, and if so which?",
+      "sql_reference": [
+        "h5_open_by_project",
+        "h5_incidents"
+      ],
+      "sql_facts": [
+        {
+          "id": "H5-s1",
+          "statement": "The project with the most open incidents is P03.",
+          "gold": "P03",
+          "match": {
+            "kind": "string"
+          }
+        },
+        {
+          "id": "H5-s2",
+          "statement": "It has 9 open incidents.",
+          "gold": 9,
+          "match": {
+            "kind": "integer"
+          }
+        },
+        {
+          "id": "H5-s3",
+          "statement": "Its open high-severity incidents in the map-service layer are: INC_0185, INC_0188, INC_0192, INC_0200.",
+          "gold": [
+            "INC_0185",
+            "INC_0188",
+            "INC_0192",
+            "INC_0200"
+          ],
+          "match": {
+            "kind": "set"
+          }
+        }
+      ],
+      "doc_facts": [
+        {
+          "id": "H5-d-INC_0185",
+          "kind": "case_fact",
+          "incident_id": "INC_0185",
+          "statement": "For INC_0185 a documented similar historical case exists (same failure mode).",
+          "evidence": {},
+          "relevant_cases": [
+            "historical_cases/INC_0026",
+            "historical_cases/INC_0033",
+            "historical_cases/INC_0042",
+            "historical_cases/INC_0043",
+            "historical_cases/INC_0046",
+            "historical_cases/INC_0050",
+            "historical_cases/INC_0051",
+            "historical_cases/INC_0052",
+            "historical_cases/INC_0070",
+            "historical_cases/INC_0085"
+          ]
+        },
+        {
+          "id": "H5-d-INC_0192",
+          "kind": "case_fact",
+          "incident_id": "INC_0192",
+          "statement": "For INC_0192 a documented similar historical case exists (same failure mode).",
+          "evidence": {},
+          "relevant_cases": [
+            "historical_cases/INC_0001",
+            "historical_cases/INC_0015",
+            "historical_cases/INC_0024",
+            "historical_cases/INC_0049",
+            "historical_cases/INC_0058",
+            "historical_cases/INC_0074",
+            "historical_cases/INC_0100",
+            "historical_cases/INC_0111"
+          ]
+        }
+      ],
+      "synthesis_requirements": [
+        {
+          "id": "H5-y-INC_0188",
+          "statement": "For INC_0188 the answer states that no documented similar case was found and does not present an unrelated case as a precedent or assert a root cause.",
+          "incident_id": "INC_0188"
+        },
+        {
+          "id": "H5-y-INC_0200",
+          "statement": "For INC_0200 the answer states that no documented similar case was found and does not present an unrelated case as a precedent or assert a root cause.",
+          "incident_id": "INC_0200"
+        }
+      ],
+      "bonus_facts": [
+        "General checks from the service-publication troubleshooting guide for the two incidents without a documented case."
+      ],
+      "oracle_queries": [
+        "Map latency increased and tiles keep being regenerated instead of served from cache. Component: Tile Cache. Environment: single node.",
+        "Map service cannot be published or starts in an error state after a configuration change. Component: Map Service. Environment: single node.",
+        "Data loads fine but features appear in the wrong place. Component: Map Service. Environment: single node.",
+        "Publishing the map service fails and the service stays unavailable. Component: Map Service. Environment: single node."
+      ],
+      "scored_incidents": {
+        "with_documented_case": [
+          "INC_0185",
+          "INC_0192"
+        ],
+        "without_documented_case": [
+          "INC_0188",
+          "INC_0200"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+deployment_id,project_id,env_type,version,deployed_at
+D01,P01,single_node,v3.0,2025-06-12 00:00:00
+D02,P02,cloud,v3.0,2025-07-08 00:00:00
+D03,P03,distributed,v3.0,2025-08-20 00:00:00
+D04,P04,single_node,v3.0,2025-09-15 00:00:00
+D05,P05,cloud,v3.1,2025-10-10 00:00:00
+D06,P06,single_node,v3.1,2025-11-05 00:00:00
+D07,P07,distributed,v3.1,2025-11-28 00:00:00
+D08,P08,cloud,v3.1,2025-12-12 00:00:00
+D09,P09,distributed,v3.2,2026-01-06 00:00:00
+D10,P10,single_node,v3.2,2026-01-09 00:00:00
+D11,P01,cloud,v3.2,2026-01-12 00:00:00
+D12,P02,distributed,v3.2,2026-01-14 00:00:00
+D13,P03,single_node,v3.3,2026-05-18 00:00:00
+D14,P04,cloud,v3.3,2026-06-22 00:00:00
+D15,P05,single_node,v3.3,2026-07-20 00:00:00

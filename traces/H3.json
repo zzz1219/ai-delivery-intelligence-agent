@@ -1,0 +1,287 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "H3",
+ "kind": "sealed_evaluation",
+ "title": "Critical incidents in distributed deployments",
+ "role": "success_example",
+ "question": "For closed critical incidents in distributed deployments, what is the mean resolution time and how many such incidents are there? What is the most common root cause among them, and what does its troubleshooting guide recommend checking first?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T00:40:03",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": true,
+  "retrieval_depends_on_sql": true,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Calculate the mean resolution time and total count of closed critical incidents in distributed deployments."
+   },
+   {
+    "task_id": "t2",
+    "description": "Find the most common root cause among closed critical incidents in distributed deployments."
+   }
+  ],
+  "retrieval_purpose": "Look up the troubleshooting guide for the most common root cause of critical distributed incidents to find what it recommends checking first."
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Calculate the mean resolution time and total count of closed critical incidents in distributed deployments.",
+   "status": "ok",
+   "sql": "SELECT \n    AVG((julianday(i.resolved_at) - julianday(i.reported_at)) * 24) AS mean_resolution_time_hours,\n    COUNT(i.incident_id) AS total_closed_critical_incidents\nFROM incidents i\nJOIN deployments d ON i.deployment_id = d.deployment_id\nWHERE i.status = 'closed'\n  AND i.severity = 'critical'\n  AND d.env_type = 'distributed'",
+   "attempts": 1,
+   "columns": [
+    "mean_resolution_time_hours",
+    "total_closed_critical_incidents"
+   ],
+   "rows": [
+    [
+     35.43749999720603,
+     8
+    ]
+   ],
+   "row_count": 1,
+   "error": null
+  },
+  {
+   "task_id": "t2",
+   "description": "Find the most common root cause among closed critical incidents in distributed deployments.",
+   "status": "ok",
+   "sql": "SELECT i.root_cause, COUNT(*) AS incident_count\nFROM incidents i\nJOIN deployments d ON i.deployment_id = d.deployment_id\nWHERE i.status = 'closed'\n  AND i.severity = 'critical'\n  AND d.env_type = 'distributed'\n  AND i.root_cause IS NOT NULL\nGROUP BY i.root_cause\nORDER BY incident_count DESC\nLIMIT 1",
+   "attempts": 1,
+   "columns": [
+    "root_cause",
+    "incident_count"
+   ],
+   "rows": [
+    [
+     "timeout",
+     4
+    ]
+   ],
+   "row_count": 1,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Calculate the mean resolution time and total count of closed critical incidents in distributed deployments.",
+   "kind": "kpi",
+   "kpis": [
+    {
+     "column": "mean_resolution_time_hours",
+     "label_columns": []
+    },
+    {
+     "column": "total_closed_critical_incidents",
+     "label_columns": []
+    }
+   ],
+   "unit": "hours",
+   "reason": "one row with 2 numeric value(s)"
+  },
+  {
+   "task_id": "t2",
+   "title": "Find the most common root cause among closed critical incidents in distributed deployments.",
+   "kind": "kpi",
+   "kpis": [
+    {
+     "column": "incident_count",
+     "label_columns": [
+      "root_cause"
+     ]
+    }
+   ],
+   "unit": "incidents",
+   "reason": "one row with 1 numeric value(s)"
+  }
+ ],
+ "retrieval": {
+  "status": "ok",
+  "purpose": "Look up the troubleshooting guide for the most common root cause of critical distributed incidents to find what it recommends checking first.",
+  "queries": [
+   "timeout troubleshooting guide check first"
+  ],
+  "context_ids": [
+   "historical_cases/INC_0054",
+   "troubleshooting_guides/bulk_import_performance",
+   "troubleshooting_guides/service_timeouts"
+  ],
+  "documents": [
+   {
+    "doc_id": "historical_cases/INC_0054",
+    "lane": "cases",
+    "title": "Incident Case INC_0054",
+    "sections": {
+     "symptoms": "Users reported long waits followed by timeout errors in the distributed environment.",
+     "investigation": "Gateway and backend logs showed requests exceeding the configured timeout while upstream services were still processing. The problem first appeared shortly after the upgrade to v3.2.",
+     "root cause": "Intermittent request failures were traced to mismatched or too-short timeouts.",
+     "resolution": "Raised gateway timeouts and added bounded retry with backoff.",
+     "lessons learned": "Keep timeouts consistent across gateway, services and database.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0054",
+     "project": "Port Operations Map (P09), transport sector",
+     "component": "Tile Cache (C04)",
+     "environment": "distributed, version v3.2",
+     "severity": "medium",
+     "root_cause": "timeout",
+     "solution_pattern": "increase_gateway_timeout_and_retry"
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/bulk_import_performance",
+    "lane": "guides",
+    "title": "Bulk Import Performance and Failures",
+    "sections": {
+     "typical symptoms": "Importing millions of records stalls, fails, or leaves the system slow afterwards.",
+     "recommended diagnostic order": "1. Check the import batch size and transaction length first.\n2. Check whether indexes are rebuilt after every batch.\n3. Check memory and lock-wait metrics during the load.\n4. After the load, verify indexes and statistics (see slow query guide).",
+     "common fixes": "- Reduce batch size and pause index rebuilding until the load finishes."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/service_timeouts",
+    "lane": "guides",
+    "title": "Service and Gateway Timeouts",
+    "sections": {
+     "typical symptoms": "Requests fail with 504 or timeout errors, often at peak or in distributed environments.",
+     "recommended diagnostic order": "1. Compare gateway, service and database timeouts for consistency.\n2. Check whether backends are still processing when the gateway gives up.\n3. In distributed deployments, check node-to-node latency and load balancer health checks.\n4. Review recent version upgrades for changed defaults.",
+     "common fixes": "- Align timeouts and add bounded retry with backoff.\n- Scale out the overloaded service."
+    }
+   }
+  ]
+ },
+ "answer": "For closed critical incidents in distributed deployments, there are 8 such incidents [sql:t1] with a mean resolution time of approximately 35.44 hours [sql:t1]. The most common root cause among them is timeout, accounting for 4 incidents [sql:t2]. \n\nFor this root cause, the troubleshooting guide recommends checking the following first:\n1. Compare gateway, service and database timeouts for consistency [troubleshooting_guides/service_timeouts].\n2. Check whether backends are still processing when the gateway gives up [troubleshooting_guides/service_timeouts].\n3. In distributed deployments, check node-to-node latency and load balancer health checks [troubleshooting_guides/service_timeouts].\n4. Review recent version upgrades for changed defaults [troubleshooting_guides/service_timeouts].\n\nAdditionally, historical case `historical_cases/INC_0054` describes a symptomatically similar precedent where users experienced long waits followed by timeout errors in a distributed environment [historical_cases/INC_0054].",
+ "findings": [
+  {
+   "text": "For closed critical incidents in distributed deployments, there are 8 such incidents [sql:t1] with a mean resolution time of approximately 35.44 hours [sql:t1].",
+   "sql_tasks": [
+    "t1",
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "The most common root cause among them is timeout, accounting for 4 incidents [sql:t2].",
+   "sql_tasks": [
+    "t2"
+   ],
+   "docs": []
+  },
+  {
+   "text": "Compare gateway, service and database timeouts for consistency [troubleshooting_guides/service_timeouts].",
+   "sql_tasks": [],
+   "docs": [
+    "troubleshooting_guides/service_timeouts"
+   ]
+  },
+  {
+   "text": "Check whether backends are still processing when the gateway gives up [troubleshooting_guides/service_timeouts].",
+   "sql_tasks": [],
+   "docs": [
+    "troubleshooting_guides/service_timeouts"
+   ]
+  },
+  {
+   "text": "In distributed deployments, check node-to-node latency and load balancer health checks [troubleshooting_guides/service_timeouts].",
+   "sql_tasks": [],
+   "docs": [
+    "troubleshooting_guides/service_timeouts"
+   ]
+  },
+  {
+   "text": "Review recent version upgrades for changed defaults [troubleshooting_guides/service_timeouts].",
+   "sql_tasks": [],
+   "docs": [
+    "troubleshooting_guides/service_timeouts"
+   ]
+  },
+  {
+   "text": "Additionally, historical case `historical_cases/INC_0054` describes a symptomatically similar precedent where users experienced long waits followed by timeout errors in a distributed environment [historical_cases/INC_0054].",
+   "sql_tasks": [],
+   "docs": [
+    "historical_cases/INC_0054"
+   ]
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 2,
+  "sql_tasks_ok": 2,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 8,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "ok",
+  "documents_in_context": 3,
+  "visualization": "selected by deterministic rules (no model involved)"
+ },
+ "evaluation": {
+  "benchmark": "hybrid-1.0",
+  "benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "run_file": "hyb_gemini_gemini-3_5-flash-lite_20261007_004003.json",
+  "question_id": "H3",
+  "scoring": "final, sealed",
+  "provenance": "human scores proposed by an external reviewer, verified against the run, adopted by the project author",
+  "route_compliant": true,
+  "sql_facts": [
+   {
+    "id": "H3-s1",
+    "statement": "The mean resolution time is 35.4 hours.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H3-s2",
+    "statement": "There are 8 such incidents.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H3-s3",
+    "statement": "The most common root cause among them is timeout.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H3-s4",
+    "statement": "It accounts for 4 of them.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   }
+  ],
+  "doc_facts": [
+   {
+    "id": "H3-d1",
+    "statement": "Its troubleshooting guide recommends checking first: Compare gateway, service and database timeouts for consistency.",
+    "evidence_in_agent_context": true,
+    "evidence_in_oracle_context": true,
+    "covered": true,
+    "frozen_attribution": "covered",
+    "posthoc_attribution": "covered"
+   }
+  ],
+  "requirements": [],
+  "unsupported_claims": 0,
+  "oracle_context_ids": [
+   "historical_cases/INC_0054",
+   "troubleshooting_guides/bulk_import_performance",
+   "troubleshooting_guides/service_timeouts"
+  ],
+  "oracle_note": "documents the benchmark's standard queries retrieve; a diagnostic that was never shown to any model",
+  "case_note": "All SQL facts, the guide's first checks and every citation are correct."
+ }
+}

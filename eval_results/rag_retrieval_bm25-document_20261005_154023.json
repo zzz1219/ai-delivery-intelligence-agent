@@ -1,0 +1,500 @@
+{
+  "meta": {
+    "role": "PRIMARY (pre-registered)",
+    "retriever": {
+      "retriever": "bm25",
+      "granularity": "document",
+      "k1": 1.5,
+      "b": 0.75,
+      "units": 71,
+      "aggregation": "max chunk score per document"
+    },
+    "benchmark_version": "rag-1.0",
+    "benchmark_sha256": "d5523edd6f5c9ff77f6843b49e91a5663e3aebf47d520a9211fc1ba42bc6cc4e",
+    "n_docs": 71,
+    "run_at": "2026-10-05T15:40:23"
+  },
+  "macro": {
+    "mrr": 1.0,
+    "primary_mrr": 1.0,
+    "hit@1": 1.0,
+    "recall@1": 1.0,
+    "precision@1": 1.0,
+    "primary_hit@1": 1.0,
+    "hit@3": 1.0,
+    "recall@3": 1.0,
+    "precision@3": 0.8667,
+    "primary_hit@3": 1.0,
+    "hit@5": 1.0,
+    "recall@5": 1.0,
+    "precision@5": 0.84,
+    "primary_hit@5": 1.0
+  },
+  "questions": [
+    {
+      "id": "R1",
+      "question": "A customer reports severe latency after importing 10 million records. What should we check first?",
+      "n_relevant": 12,
+      "retrieved": [
+        {
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/bulk_import_performance",
+          "score": 10.5228,
+          "relevant": true,
+          "primary": true
+        },
+        {
+          "rank": 2,
+          "doc_id": "historical_cases/INC_0006",
+          "score": 7.5285,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 3,
+          "doc_id": "historical_cases/INC_0062",
+          "score": 7.0775,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 4,
+          "doc_id": "historical_cases/INC_0002",
+          "score": 6.824,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 5,
+          "doc_id": "historical_cases/INC_0010",
+          "score": 6.529,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 6,
+          "doc_id": "troubleshooting_guides/service_timeouts",
+          "score": 6.4212,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 7,
+          "doc_id": "troubleshooting_guides/tile_cache_issues",
+          "score": 6.312,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 8,
+          "doc_id": "historical_cases/INC_0017",
+          "score": 6.0316,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 9,
+          "doc_id": "historical_cases/INC_0038",
+          "score": 6.0298,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 10,
+          "doc_id": "historical_cases/INC_0064",
+          "score": 6.0079,
+          "relevant": false,
+          "primary": false
+        }
+      ],
+      "first_relevant_rank": 1,
+      "first_primary_rank": 1,
+      "mrr": 1.0,
+      "primary_mrr": 1.0,
+      "hit@1": 1.0,
+      "recall@1": 1.0,
+      "precision@1": 1.0,
+      "primary_hit@1": 1.0,
+      "hit@3": 1.0,
+      "recall@3": 1.0,
+      "precision@3": 1.0,
+      "primary_hit@3": 1.0,
+      "hit@5": 1.0,
+      "recall@5": 1.0,
+      "precision@5": 1.0,
+      "primary_hit@5": 1.0
+    },
+    {
+      "id": "R2",
+      "question": "What are the usual fixes for coordinate-system mismatch when loading data?",
+      "n_relevant": 9,
+      "retrieved": [
+        {
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/crs_mismatch",
+          "score": 15.1152,
+          "relevant": true,
+          "primary": true
+        },
+        {
+          "rank": 2,
+          "doc_id": "historical_cases/INC_0049",
+          "score": 10.4085,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 3,
+          "doc_id": "historical_cases/INC_0111",
+          "score": 10.4085,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 4,
+          "doc_id": "historical_cases/INC_0015",
+          "score": 10.3108,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 5,
+          "doc_id": "historical_cases/INC_0100",
+          "score": 10.0908,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 6,
+          "doc_id": "historical_cases/INC_0001",
+          "score": 10.0584,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 7,
+          "doc_id": "historical_cases/INC_0024",
+          "score": 9.3875,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 8,
+          "doc_id": "historical_cases/INC_0074",
+          "score": 9.3558,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 9,
+          "doc_id": "historical_cases/INC_0058",
+          "score": 9.2077,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 10,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 4.3343,
+          "relevant": false,
+          "primary": false
+        }
+      ],
+      "first_relevant_rank": 1,
+      "first_primary_rank": 1,
+      "mrr": 1.0,
+      "primary_mrr": 1.0,
+      "hit@1": 1.0,
+      "recall@1": 1.0,
+      "precision@1": 1.0,
+      "primary_hit@1": 1.0,
+      "hit@3": 1.0,
+      "recall@3": 1.0,
+      "precision@3": 1.0,
+      "primary_hit@3": 1.0,
+      "hit@5": 1.0,
+      "recall@5": 1.0,
+      "precision@5": 1.0,
+      "primary_hit@5": 1.0
+    },
+    {
+      "id": "R3",
+      "question": "Have we seen service timeouts after distributed deployments? What was found?",
+      "n_relevant": 10,
+      "retrieved": [
+        {
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/service_timeouts",
+          "score": 10.0696,
+          "relevant": true,
+          "primary": true
+        },
+        {
+          "rank": 2,
+          "doc_id": "historical_cases/INC_0011",
+          "score": 4.4744,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 3,
+          "doc_id": "historical_cases/INC_0152",
+          "score": 4.4357,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 4,
+          "doc_id": "historical_cases/INC_0165",
+          "score": 4.1082,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 5,
+          "doc_id": "historical_cases/INC_0008",
+          "score": 4.0442,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 6,
+          "doc_id": "historical_cases/INC_0054",
+          "score": 3.9347,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 7,
+          "doc_id": "historical_cases/INC_0151",
+          "score": 3.9347,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 8,
+          "doc_id": "historical_cases/INC_0086",
+          "score": 3.9243,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 9,
+          "doc_id": "historical_cases/INC_0071",
+          "score": 3.618,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 10,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 3.5951,
+          "relevant": false,
+          "primary": false
+        }
+      ],
+      "first_relevant_rank": 1,
+      "first_primary_rank": 1,
+      "mrr": 1.0,
+      "primary_mrr": 1.0,
+      "hit@1": 1.0,
+      "recall@1": 1.0,
+      "precision@1": 1.0,
+      "primary_hit@1": 1.0,
+      "hit@3": 1.0,
+      "recall@3": 1.0,
+      "precision@3": 1.0,
+      "primary_hit@3": 1.0,
+      "hit@5": 1.0,
+      "recall@5": 1.0,
+      "precision@5": 1.0,
+      "primary_hit@5": 1.0
+    },
+    {
+      "id": "R4",
+      "question": "What does the troubleshooting guide say about connection pool exhaustion?",
+      "n_relevant": 6,
+      "retrieved": [
+        {
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/connection_pool_exhausted",
+          "score": 11.268,
+          "relevant": true,
+          "primary": true
+        },
+        {
+          "rank": 2,
+          "doc_id": "historical_cases/INC_0005",
+          "score": 10.2853,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 3,
+          "doc_id": "historical_cases/INC_0030",
+          "score": 10.2853,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 4,
+          "doc_id": "historical_cases/INC_0004",
+          "score": 10.2645,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 5,
+          "doc_id": "historical_cases/INC_0101",
+          "score": 10.0592,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 6,
+          "doc_id": "historical_cases/INC_0067",
+          "score": 9.8281,
+          "relevant": true,
+          "primary": false
+        },
+        {
+          "rank": 7,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 6.2432,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 8,
+          "doc_id": "troubleshooting_guides/bulk_import_performance",
+          "score": 4.6337,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 9,
+          "doc_id": "deployment_guides/cloud_deployment",
+          "score": 2.9668,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 10,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 2.6129,
+          "relevant": false,
+          "primary": false
+        }
+      ],
+      "first_relevant_rank": 1,
+      "first_primary_rank": 1,
+      "mrr": 1.0,
+      "primary_mrr": 1.0,
+      "hit@1": 1.0,
+      "recall@1": 1.0,
+      "precision@1": 1.0,
+      "primary_hit@1": 1.0,
+      "hit@3": 1.0,
+      "recall@3": 1.0,
+      "precision@3": 1.0,
+      "primary_hit@3": 1.0,
+      "hit@5": 1.0,
+      "recall@5": 1.0,
+      "precision@5": 1.0,
+      "primary_hit@5": 1.0
+    },
+    {
+      "id": "R5",
+      "question": "What should be checked before go-live of a distributed deployment?",
+      "n_relevant": 1,
+      "retrieved": [
+        {
+          "rank": 1,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 12.0377,
+          "relevant": true,
+          "primary": true
+        },
+        {
+          "rank": 2,
+          "doc_id": "historical_cases/INC_0075",
+          "score": 7.5744,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 3,
+          "doc_id": "historical_cases/INC_0035",
+          "score": 7.424,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 4,
+          "doc_id": "historical_cases/INC_0079",
+          "score": 6.4282,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 5,
+          "doc_id": "historical_cases/INC_0007",
+          "score": 6.2255,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 6,
+          "doc_id": "deployment_guides/cloud_deployment",
+          "score": 4.4295,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 7,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 4.4036,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 8,
+          "doc_id": "troubleshooting_guides/service_timeouts",
+          "score": 1.9078,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 9,
+          "doc_id": "historical_cases/INC_0011",
+          "score": 1.6566,
+          "relevant": false,
+          "primary": false
+        },
+        {
+          "rank": 10,
+          "doc_id": "historical_cases/INC_0054",
+          "score": 1.6195,
+          "relevant": false,
+          "primary": false
+        }
+      ],
+      "first_relevant_rank": 1,
+      "first_primary_rank": 1,
+      "mrr": 1.0,
+      "primary_mrr": 1.0,
+      "hit@1": 1.0,
+      "recall@1": 1.0,
+      "precision@1": 1.0,
+      "primary_hit@1": 1.0,
+      "hit@3": 1.0,
+      "recall@3": 1.0,
+      "precision@3": 0.3333,
+      "primary_hit@3": 1.0,
+      "hit@5": 1.0,
+      "recall@5": 1.0,
+      "precision@5": 0.2,
+      "primary_hit@5": 1.0
+    }
+  ]
+}

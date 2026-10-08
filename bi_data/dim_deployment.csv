@@ -1,0 +1,16 @@
+deployment_id,env_type,version,deployed_at
+D01,single_node,v3.0,2025-06-12
+D02,cloud,v3.0,2025-07-08
+D03,distributed,v3.0,2025-08-20
+D04,single_node,v3.0,2025-09-15
+D05,cloud,v3.1,2025-10-10
+D06,single_node,v3.1,2025-11-05
+D07,distributed,v3.1,2025-11-28
+D08,cloud,v3.1,2025-12-12
+D09,distributed,v3.2,2026-01-06
+D10,single_node,v3.2,2026-01-09
+D11,cloud,v3.2,2026-01-12
+D12,distributed,v3.2,2026-01-14
+D13,single_node,v3.3,2026-05-18
+D14,cloud,v3.3,2026-06-22
+D15,single_node,v3.3,2026-07-20

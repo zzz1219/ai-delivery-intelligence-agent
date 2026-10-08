@@ -1,0 +1,315 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "H4",
+ "kind": "sealed_evaluation",
+ "title": "Map-service spike and the v3.2 association",
+ "role": "partial_example",
+ "question": "Did map-service incidents spike in 2026 Q1 compared with the surrounding quarters? Which deployment version was associated with most of the Q1 incidents, does the available evidence establish that this version caused the spike, and what concrete failure mode is documented in at least one relevant historical case?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T00:40:03",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": true,
+  "retrieval_depends_on_sql": true,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Calculate the total number of incidents for the map-service component per quarter for 2025 Q4, 2026 Q1, and 2026 Q2."
+   },
+   {
+    "task_id": "t2",
+    "description": "Find the deployment versions associated with map-service incidents during 2026 Q1, grouped by version and ordered by incident count."
+   }
+  ],
+  "retrieval_purpose": "Look up historical case reports or post-mortems for the identified map-service deployment version in 2026 Q1 to check if it caused the spike and to identify the concrete documented failure mode."
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Calculate the total number of incidents for the map-service component per quarter for 2025 Q4, 2026 Q1, and 2026 Q2.",
+   "status": "ok",
+   "sql": "SELECT \n    CASE \n        WHEN reported_at >= '2025-10-01' AND reported_at < '2026-01-01' THEN '2025 Q4'\n        WHEN reported_at >= '2026-01-01' AND reported_at < '2026-04-01' THEN '2026 Q1'\n        WHEN reported_at >= '2026-04-01' AND reported_at < '2026-07-01' THEN '2026 Q2'\n    END AS quarter,\n    COUNT(i.incident_id) AS total_incidents\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE c.layer = 'map_service'\n  AND reported_at >= '2025-10-01' AND reported_at < '2026-07-01'\nGROUP BY quarter\nORDER BY quarter",
+   "attempts": 1,
+   "columns": [
+    "quarter",
+    "total_incidents"
+   ],
+   "rows": [
+    [
+     "2025 Q4",
+     11
+    ],
+    [
+     "2026 Q1",
+     40
+    ],
+    [
+     "2026 Q2",
+     11
+    ]
+   ],
+   "row_count": 3,
+   "error": null
+  },
+  {
+   "task_id": "t2",
+   "description": "Find the deployment versions associated with map-service incidents during 2026 Q1, grouped by version and ordered by incident count.",
+   "status": "ok",
+   "sql": "SELECT \n    d.version,\n    COUNT(i.incident_id) AS incident_count\nFROM incidents i\nJOIN deployments d ON i.deployment_id = d.deployment_id\nWHERE (i.category = 'map_service' OR i.component_id IN (SELECT component_id FROM components WHERE layer = 'map_service'))\n  AND i.reported_at >= '2026-01-01 00:00:00'\n  AND i.reported_at < '2026-04-01 00:00:00'\nGROUP BY d.version\nORDER BY incident_count DESC",
+   "attempts": 1,
+   "columns": [
+    "version",
+    "incident_count"
+   ],
+   "rows": [
+    [
+     "v3.2",
+     32
+    ],
+    [
+     "v3.1",
+     8
+    ]
+   ],
+   "row_count": 2,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Calculate the total number of incidents for the map-service component per quarter for 2025 Q4, 2026 Q1, and 2026 Q2.",
+   "kind": "bar",
+   "x": "quarter",
+   "y": "total_incidents",
+   "sort": "x_asc",
+   "orientation": "v",
+   "unit": "incidents",
+   "reason": "3 periods: too few for a trend line"
+  },
+  {
+   "task_id": "t2",
+   "title": "Find the deployment versions associated with map-service incidents during 2026 Q1, grouped by version and ordered by inc",
+   "kind": "bar",
+   "x": "version",
+   "y": "incident_count",
+   "sort": "y_desc",
+   "orientation": "v",
+   "unit": "incidents",
+   "reason": "2 categories"
+  }
+ ],
+ "retrieval": {
+  "status": "ok",
+  "purpose": "Look up historical case reports or post-mortems for the identified map-service deployment version in 2026 Q1 to check if it caused the spike and to identify the concrete documented failure mode.",
+  "queries": [
+   "map-service v3.2 incident root cause 2026 Q1 post-mortem",
+   "map-service v3.2 deployment failure mode incidents"
+  ],
+  "context_ids": [
+   "historical_cases/INC_0070",
+   "historical_cases/INC_0075",
+   "troubleshooting_guides/service_publication_failures",
+   "troubleshooting_guides/tile_cache_issues",
+   "deployment_guides/single_node_deployment"
+  ],
+  "documents": [
+   {
+    "doc_id": "historical_cases/INC_0070",
+    "lane": "cases",
+    "title": "Incident Case INC_0070",
+    "sections": {
+     "symptoms": "Map tiles loaded slowly and some zoom levels rendered blank or stale.",
+     "investigation": "Cache statistics showed a very low hit rate; scale-level settings did not match the published service. The v3.2 upgrade reset the cache scale-level settings to defaults.",
+     "root cause": "Slow or stale map tiles were traced to a tile cache misconfiguration.",
+     "resolution": "Restored the cache scale-level configuration and re-seeded tiles.",
+     "lessons learned": "Verify cache scale levels after every upgrade or service republish.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0070",
+     "project": "Land Survey Management System (P02), government sector",
+     "component": "Map Service (C03)",
+     "environment": "distributed, version v3.2",
+     "severity": "low",
+     "root_cause": "tile_cache_misconfig",
+     "solution_pattern": "adjust_cache_scale_levels"
+    }
+   },
+   {
+    "doc_id": "historical_cases/INC_0075",
+    "lane": "cases",
+    "title": "Incident Case INC_0075",
+    "sections": {
+     "symptoms": "Token validation failed intermittently and blocked access to several modules.",
+     "investigation": "Auth service logs showed token signature or attribute-mapping errors correlated with the reported failures.",
+     "root cause": "Login or token failures were traced to authentication configuration.",
+     "resolution": "Fixed the SSO attribute mapping.",
+     "lessons learned": "Test SSO and token settings in staging before changes go live.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0075",
+     "project": "Land Survey Management System (P02), government sector",
+     "component": "API Gateway (C07)",
+     "environment": "distributed, version v3.2",
+     "severity": "low",
+     "root_cause": "authentication_failure",
+     "solution_pattern": "fix_sso_mapping"
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/service_publication_failures",
+    "lane": "guides",
+    "title": "Map Service Publication Failures",
+    "sections": {
+     "typical symptoms": "A map service fails to publish or starts in an error state.",
+     "recommended diagnostic order": "1. Read the publishing log for the first error.\n2. Validate the service configuration and data source connections.\n3. Check the service account permissions on data and cache folders.",
+     "common fixes": "- Republish with corrected configuration.\n- Fix service account permissions."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/tile_cache_issues",
+    "lane": "guides",
+    "title": "Tile Cache and Map Latency",
+    "sections": {
+     "typical symptoms": "Map tiles are slow, blank or stale; cache hit rate drops.",
+     "recommended diagnostic order": "1. Check cache hit rate and which scale levels miss.\n2. Compare cache scale-level settings with the published map service.\n3. Check whether a recent upgrade or republish reset cache settings.\n4. Verify cache storage capacity and permissions.",
+     "common fixes": "- Restore cache scale-level configuration and re-seed tiles.\n- Rebuild the cache for affected levels."
+    }
+   },
+   {
+    "doc_id": "deployment_guides/single_node_deployment",
+    "lane": "guides",
+    "title": "Single-Node Deployment Checklist",
+    "sections": {}
+   }
+  ]
+ },
+ "answer": "Map-service incidents did spike in 2026 Q1, totaling 40 incidents compared to 11 in 2025 Q4 and 11 in 2026 Q2 [sql:t1]. \n\nDeployment version v3.2 was associated with the majority of the Q1 incidents (32 incidents), while version v3.1 was associated with 8 [sql:t2]. However, the available evidence does not establish that version v3.2 caused the spike, as counts and co-occurrence only show an association rather than causation. \n\nA symptomatically similar historical case (`historical_cases/INC_0070`) documents a concrete failure mode where map tiles loaded slowly and some zoom levels rendered blank or stale due to a tile cache misconfiguration (`tile_cache_misconfig`), where scale-level settings did not match the published service after an upgrade [historical_cases/INC_0070].",
+ "findings": [
+  {
+   "text": "Map-service incidents did spike in 2026 Q1, totaling 40 incidents compared to 11 in 2025 Q4 and 11 in 2026 Q2 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "Deployment version v3.2 was associated with the majority of the Q1 incidents (32 incidents), while version v3.1 was associated with 8 [sql:t2].",
+   "sql_tasks": [
+    "t2"
+   ],
+   "docs": []
+  },
+  {
+   "text": "A symptomatically similar historical case (`historical_cases/INC_0070`) documents a concrete failure mode where map tiles loaded slowly and some zoom levels rendered blank or stale due to a tile cache misconfiguration (`tile_cache_misconfig`), where scale-level settings did not match the published service after an upgrade [historical_cases/INC_0070].",
+   "sql_tasks": [],
+   "docs": [
+    "historical_cases/INC_0070"
+   ]
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 2,
+  "sql_tasks_ok": 2,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 3,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "ok",
+  "documents_in_context": 5,
+  "visualization": "selected by deterministic rules (no model involved)"
+ },
+ "evaluation": {
+  "benchmark": "hybrid-1.0",
+  "benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "run_file": "hyb_gemini_gemini-3_5-flash-lite_20261007_004003.json",
+  "question_id": "H4",
+  "scoring": "final, sealed",
+  "provenance": "human scores proposed by an external reviewer, verified against the run, adopted by the project author",
+  "route_compliant": true,
+  "sql_facts": [
+   {
+    "id": "H4-s1",
+    "statement": "Map-service incidents in 2025-Q4: 11.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H4-s2",
+    "statement": "Map-service incidents in 2026-Q1: 40.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H4-s3",
+    "statement": "Map-service incidents in 2026-Q2: 11.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H4-s4",
+    "statement": "Map-service incidents in 2026-Q3: 14.",
+    "machine_matched_task": null,
+    "human_sql_ok": false,
+    "answer_states_it": false
+   },
+   {
+    "id": "H4-s5",
+    "statement": "The version associated with most Q1 incidents is v3.2.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H4-s6",
+    "statement": "v3.2 accounts for 32 of the 40 Q1 incidents.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   }
+  ],
+  "doc_facts": [
+   {
+    "id": "H4-d1",
+    "statement": "At least one documented map-service case from 2026 Q1 describes a concrete failure mode (for example tile-cache scale levels reset to defaults, request timeouts, or a coordinate-system mismatch).",
+    "evidence_in_agent_context": true,
+    "evidence_in_oracle_context": true,
+    "covered": true,
+    "frozen_attribution": "covered",
+    "posthoc_attribution": "covered"
+   }
+  ],
+  "requirements": [
+   {
+    "id": "H4-y1",
+    "statement": "The answer says the spike coincides with / is associated with the version.",
+    "met": true
+   },
+   {
+    "id": "H4-y2",
+    "statement": "The answer does not present the version as the established cause of the spike (the incident counts alone establish association, not causation); citing a documented mechanism in individual cases as a plausible explanation is allowed.",
+    "met": true
+   }
+  ],
+  "unsupported_claims": 0,
+  "oracle_context_ids": [
+   "historical_cases/INC_0070",
+   "troubleshooting_guides/service_publication_failures",
+   "troubleshooting_guides/tile_cache_issues"
+  ],
+  "oracle_note": "documents the benchmark's standard queries retrieve; a diagnostic that was never shown to any model",
+  "case_note": "Correct on the Q1 spike (40 incidents), on v3.2 (32 of 40), on the association-versus-causation statement and on a concrete failure mode (INC_0070). The 2026 Q3 count was never computed because the planner restricted the task to three quarters; the frozen rubric required it, although the question says 'surrounding quarters', which is a specification defect disclosed in the sealed summary."
+ }
+}

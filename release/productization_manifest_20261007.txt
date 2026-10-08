@@ -1,0 +1,38 @@
+release: v1.0-productized-core
+date: 2026-10-07
+tests: 127 (11 test modules) passed
+corpus: 7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd  corpus (71 documents)
+
+Productization fingerprint = release evidence of the final demo version.
+It does not re-freeze any benchmark; benchmark fingerprints are in benchmarks/*.sha256.
+
+0887e88daf655b51  demo/__init__.py
+c12199997d909a88  demo/convert_sealed.py
+f9f698f4f40a76b8  demo/engine.py
+ef5c8dff9c8ba252  demo/gallery.py
+747cb71d83b2ab73  demo/live.py
+d5150f9f08f964e3  demo/preflight.py
+d14bc6569c2d017a  demo/record.py
+aa9196094068fc2a  demo/retrust.py
+f085a4f35ef65aa6  demo/smoke_app.py
+8ad351fd1480de8a  demo/streamlit_app.py
+a7efd226259dd38b  demo/test_demo.py
+7667da586fe33da7  demo/test_preflight.py
+d43508ddca28be00  demo/test_view.py
+a7b4fd72ccbf8f9d  demo/trace.py
+fed6e0999318fc89  demo/view_model.py
+a1d2d54ce8098dad  viz/__init__.py
+7f749679a3251320  viz/materialize.py
+ef7c83900e919f88  viz/select.py
+a891caabccf21869  viz/spec.py
+2de3e48d9a7446d7  viz/test_viz.py
+1e21c5fa65b4e569  traces/A1.json
+c8b6f20ef5ebba37  traces/A2.json
+d9b984dc3e7df057  traces/A3.json
+ba285839e1b75376  traces/A4.json
+f857f091ae063799  traces/H1.json
+8e59fdace5a1818f  traces/H2.json
+58bcd020425a260e  traces/H3.json
+9b74a69f26f8ff2b  traces/H4.json
+28a7477911025b24  traces/H5.json
+0add671eebb7e1db  traces/index.json

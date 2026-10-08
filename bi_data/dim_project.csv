@@ -1,0 +1,11 @@
+project_id,project_name,start_date,project_status,sla_tier,customer_id,customer_name,industry,region
+P01,Urban Spatial Data Platform,2025-04-13,active,gold,CUS01,Northbridge Municipal Bureau,government,North China
+P02,Land Survey Management System,2025-05-09,active,silver,CUS02,Eastport Land Resources Agency,government,East China
+P03,Grid Asset Mapping,2025-06-21,active,bronze,CUS03,Greenvale Power Grid Co.,energy,Central China
+P04,Transit Network Digital Twin,2025-07-17,active,gold,CUS04,Harborline Transit Authority,transport,South China
+P05,Pipeline Monitoring Portal,2025-08-11,active,silver,CUS05,Clearwater Utilities Group,utilities,East China
+P06,Resource Census Platform,2025-09-06,active,bronze,CUS06,Summit Natural Resources Dept.,government,Southwest China
+P07,Planning Review System,2025-09-29,active,gold,CUS07,Riverside Urban Planning Institute,government,East China
+P08,Mine Safety Mapping,2025-10-13,active,silver,CUS08,Ironwood Mining Corp.,energy,North China
+P09,Port Operations Map,2025-11-07,active,bronze,CUS09,Baywatch Port Logistics,transport,South China
+P10,Water Network Platform,2025-11-10,active,gold,CUS10,Lakeshore Water Services,utilities,Central China

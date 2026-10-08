@@ -1,0 +1,59 @@
+{
+  "run": "gen_gemini_gemini-3_5-flash-lite_c1g2_20261006_204010.json",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "lanes": {
+    "retriever": "bm25",
+    "granularity": "document",
+    "lanes": "cases / guides",
+    "k_cases": 1,
+    "k_guides": 2,
+    "order": "cases then guides"
+  },
+  "summary": {
+    "knowledge": {
+      "n_questions": 5,
+      "testable_facts": 29,
+      "per_question": {
+        "G01": "4/5",
+        "G02": "3/6",
+        "G03": "2/6",
+        "G04": "6/6",
+        "G05": "6/6"
+      },
+      "evidence_split": {
+        "covered": 21,
+        "missed_context_available": 8,
+        "aggregate_not_scored": 5
+      },
+      "coverage": "21/29"
+    },
+    "symptom_answerable": {
+      "n": 5,
+      "cited_relevant_case_machine": 5,
+      "answers_with_wrong_precedent_machine": 0,
+      "similar_case_stated_human": 5,
+      "advice_consistent_human": 5,
+      "relevant_case_in_context": 5,
+      "note": "covers 5 of the 8 root causes only"
+    },
+    "no_matching_case": {
+      "n": 5,
+      "precedent_claimed_human": 0,
+      "precedent_flag_machine": 4,
+      "root_cause_asserted_human": 0,
+      "guide_checks_given_human": 5,
+      "abstention_correct": 5,
+      "matching_guide_in_context": 5
+    },
+    "all_answers": {
+      "n": 15,
+      "answers_without_citation": 0,
+      "citation_marks": 93,
+      "answers_with_invalid_citation": 0,
+      "invalid_distinct_citations": 0,
+      "unsupported_claims_total": 3,
+      "answers_with_unsupported_claims": 3
+    },
+    "note": "no composite score; report each line with its n and the declared limitations"
+  }
+}

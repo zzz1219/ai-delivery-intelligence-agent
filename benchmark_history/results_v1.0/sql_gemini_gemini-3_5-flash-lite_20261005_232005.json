@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "llm": "gemini:gemini-3.5-flash-lite",
+    "started_at": "2026-10-05T23:20:05",
+    "state": "complete",
+    "note": "real model run",
+    "complete": true,
+    "errors": [],
+    "skipped": [],
+    "first_error": null
+  },
+  "results": [
+    {
+      "id": "S1",
+      "question": "Which project had the most critical incidents last quarter?",
+      "status": "ok",
+      "error_class": null,
+      "attempts": 1,
+      "executed": true,
+      "strict": true,
+      "loose": true,
+      "answer_has_key": true,
+      "sql": "SELECT \n    p.project_id,\n    p.name,\n    COUNT(i.incident_id) AS critical_incident_count\nFROM projects p\nJOIN incidents i ON p.project_id = i.project_id\nWHERE i.severity = 'critical'\n  AND i.reported_at >= '2026-07-01 00:00:00'\n  AND i.reported_at < '2026-10-01 00:00:00'\nGROUP BY p.project_id, p.name\nORDER BY critical_incident_count DESC\nLIMIT 1",
+      "answer": "Assuming \"last quarter\" refers to Q3 2026 (July 1 to September 30, 2026) based on the query parameters, the \"Grid Asset Mapping\" project (project_id P03) had the most critical incidents with a count of 4."
+    },
+    {
+      "id": "S2",
+      "question": "What is the average resolution time by category?",
+      "status": "ok",
+      "error_class": null,
+      "attempts": 1,
+      "executed": true,
+      "strict": true,
+      "loose": true,
+      "answer_has_key": null,
+      "sql": "SELECT \n    category,\n    AVG((julianday(resolved_at) - julianday(reported_at)) * 24) AS avg_resolution_time_hours\nFROM incidents\nWHERE status = 'closed'\nGROUP BY category\nORDER BY avg_resolution_time_hours DESC",
+      "answer": "The average resolution time for closed incidents varies by category, with \"database\" taking the longest at 38.42820512904571 hours and \"ui\" taking the shortest at 10.447619048080274 hours. The remaining categories—\"map_service\", \"data_pipeline\", \"network\", and \"auth\"—average 21.03676470582757, 16.056521739324797, 13.231818181547252, and 11.166666666045785 hours, respectively. This assumes resolution time is calculated as the difference in hours between the `reported_at` and `resolved_at` timestamps for closed incidents."
+    },
+    {
+      "id": "S3",
+      "question": "Show the monthly incident trend for the map_service component.",
+      "status": "ok",
+      "error_class": null,
+      "attempts": 1,
+      "executed": true,
+      "strict": true,
+      "loose": true,
+      "answer_has_key": null,
+      "sql": "SELECT \n    strftime('%Y-%m', i.reported_at) AS incident_month,\n    COUNT(i.incident_id) AS incident_count\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE c.name = 'map_service' OR c.layer = 'map_service' OR i.category = 'map_service'\nGROUP BY strftime('%Y-%m', i.reported_at)\nORDER BY incident_month",
+      "answer": "The monthly incident trend for the map_service component shows varying counts from October 2025 through September 2026. Incidents started at 2 in 2025-10, peaked at 21 in 2026-03, and ended with 7 in 2026-09. Assuming the data reflects all recorded events up to September 2026, the figures fluctuate throughout the period without a steady upward or downward trajectory."
+    },
+    {
+      "id": "S4",
+      "question": "Which environment type has the most timeout incidents per deployment?",
+      "status": "ok",
+      "error_class": null,
+      "attempts": 1,
+      "executed": true,
+      "strict": false,
+      "loose": true,
+      "answer_has_key": true,
+      "sql": "SELECT \n    d.env_type,\n    CAST(COUNT(i.incident_id) AS REAL) / COUNT(DISTINCT d.deployment_id) AS timeouts_per_deployment\nFROM deployments d\nJOIN incidents i ON d.deployment_id = i.deployment_id\nWHERE i.root_cause = 'timeout'\nGROUP BY d.env_type\nORDER BY timeouts_per_deployment DESC\nLIMIT 1",
+      "answer": "Based on the query result, the distributed environment type has the most timeout incidents per deployment, with 9.75 timeouts per deployment. This assumes the data accurately captures all relevant deployments and timeout incidents. The data shows this specific metric per environment type but does not prove the underlying causes for the timeouts."
+    },
+    {
+      "id": "S5",
+      "question": "What share of incidents are still open, by severity?",
+      "status": "ok",
+      "error_class": null,
+      "attempts": 1,
+      "executed": true,
+      "strict": false,
+      "loose": false,
+      "answer_has_key": null,
+      "sql": "SELECT \n    severity,\n    CAST(SUM(CASE WHEN status = 'open' THEN 1 ELSE 0 END) AS REAL) / COUNT(*) AS open_share\nFROM incidents\nGROUP BY severity\nORDER BY severity",
+      "answer": "Based on the query result, the share of open incidents by severity is approximately `0.034` (or `3.45%`) for critical, `0.162` (or `16.22%`) for high, `0.06` (or `6%`) for low, and `0.0595` (or `5.95%`) for medium. This analysis assumes the data reflects the entire dataset of incidents available at the time of the query."
+    }
+  ]
+}

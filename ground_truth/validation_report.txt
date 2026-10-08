@@ -1,0 +1,16 @@
+seed: 58 (frozen)
+reference date: 2026-10-05
+validation failures: none
+
+incidents_not_on_latest_active_deployment: 0
+avg_hours_by_category: {'database': 38.4, 'map_service': 21.0, 'data_pipeline': 16.1, 'network': 13.2, 'auth': 11.2, 'ui': 10.4}
+critical_vs_other_ratio (parameter 1.8): 1.89
+timeouts_per_deployment: [('distributed', 9.75), ('single_node', 2.0), ('cloud', 1.6)]
+map_service_by_quarter: {'2025-Q4': 11, '2026-Q1': 40, '2026-Q2': 11, '2026-Q3': 14}
+critical_q3_by_project: [('P03', 4), ('P10', 1), ('P05', 1), ('P01', 1)]
+repeat_incidents_by_component: [('C03', 27), ('C04', 15), ('C05', 11), ('C07', 8)]
+open_by_project: [('P03', 9), ('P09', 2), ('P07', 1), ('P05', 1), ('P04', 1), ('P01', 1)]
+
+incidents: 200  status: {'closed': 185, 'open': 15}
+case docs: 60
+evaluation cases: 15

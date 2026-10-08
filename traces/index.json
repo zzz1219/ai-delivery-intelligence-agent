@@ -1,0 +1,127 @@
+{
+ "format": "trace-gallery-1.0",
+ "traces": [
+  {
+   "trace_id": "A1",
+   "file": "A1.json",
+   "title": "Monthly incident trend by service category",
+   "role": "analytics",
+   "kind": "recorded_live",
+   "status": "ok",
+   "question": "How have incident volumes changed month by month across service categories?",
+   "viz": [
+    "line"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "A2",
+   "file": "A2.json",
+   "title": "Root causes of closed incidents",
+   "role": "analytics",
+   "kind": "recorded_live",
+   "status": "ok",
+   "question": "Which root causes account for the most closed incidents?",
+   "viz": [
+    "bar"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "A3",
+   "file": "A3.json",
+   "title": "Average resolution time by component",
+   "role": "analytics",
+   "kind": "recorded_live",
+   "status": "ok",
+   "question": "Which components have the highest average resolution time for closed incidents?",
+   "viz": [
+    "bar"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "A4",
+   "file": "A4.json",
+   "title": "Open incidents by project",
+   "role": "analytics",
+   "kind": "recorded_live",
+   "status": "ok",
+   "question": "Which projects currently have the most open incidents?",
+   "viz": [
+    "bar"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "H1",
+   "file": "H1.json",
+   "title": "Database vs other: resolution time",
+   "role": "success_example",
+   "kind": "sealed_evaluation",
+   "status": "ok",
+   "question": "Among closed incidents, are database incidents slower to resolve on average than non-database incidents? Across closed incidents, which root cause has the highest mean resolution time, and what does its troubleshooting guide recommend checking first?",
+   "viz": [
+    "bar",
+    "kpi"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "H3",
+   "file": "H3.json",
+   "title": "Critical incidents in distributed deployments",
+   "role": "success_example",
+   "kind": "sealed_evaluation",
+   "status": "ok",
+   "question": "For closed critical incidents in distributed deployments, what is the mean resolution time and how many such incidents are there? What is the most common root cause among them, and what does its troubleshooting guide recommend checking first?",
+   "viz": [
+    "kpi",
+    "kpi"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "H4",
+   "file": "H4.json",
+   "title": "Map-service spike and the v3.2 association",
+   "role": "partial_example",
+   "kind": "sealed_evaluation",
+   "status": "ok",
+   "question": "Did map-service incidents spike in 2026 Q1 compared with the surrounding quarters? Which deployment version was associated with most of the Q1 incidents, does the available evidence establish that this version caused the spike, and what concrete failure mode is documented in at least one relevant historical case?",
+   "viz": [
+    "bar",
+    "bar"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "H2",
+   "file": "H2.json",
+   "title": "Repeat incidents counted as pairs",
+   "role": "failure_case",
+   "kind": "sealed_evaluation",
+   "status": "ok",
+   "question": "Define a repeat incident as a closed incident for which at least one other closed incident exists with the same project, component and root cause within 90 days (before or after it). Under this definition, which root cause has the most repeat incidents, and what lesson learned is recorded in similar historical cases?",
+   "viz": [
+    "kpi"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  },
+  {
+   "trace_id": "H5",
+   "file": "H5.json",
+   "title": "Open incidents and historical precedents",
+   "role": "mixed_case",
+   "kind": "sealed_evaluation",
+   "status": "ok",
+   "question": "Which project currently has the most open incidents? For that project's open high-severity incidents in the map-service layer, have we seen similar cases before, and if so which?",
+   "viz": [
+    "kpi",
+    "table"
+   ],
+   "model": "gemini:gemini-3.5-flash-lite"
+  }
+ ],
+ "pending_recordings": []
+}

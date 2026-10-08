@@ -1,0 +1,27 @@
+{
+  "note": "Original rubric file is kept unchanged. The revised file is the FINAL human rubric for generation v1.",
+  "decision": "G14 unsupported_claims 0 -> 1 decided by the project author/rater; notes for G01 and G14 added. The G14 note text was supplied by the author; the G01 and R1-f5 notes were drafted by the assistant and are open to edit.",
+  "changes": [
+    {
+      "question_id": "G14",
+      "item_id": "unsupported_claims",
+      "original": "0",
+      "revised": "1",
+      "reason": "Meta-claim about historical cases is derived from the system rule, not supported by retrieved documents."
+    },
+    {
+      "question_id": "G06",
+      "item_id": "unsupported_claims",
+      "original": "0",
+      "revised": "1",
+      "reason": "Same standard as G14: a statement that is not established by the retrieved documents (the new incident's root cause)."
+    }
+  ],
+  "notes_added": [
+    "G01/unsupported_claims",
+    "G01/R1-f5",
+    "G14/unsupported_claims",
+    "G06/unsupported_claims"
+  ],
+  "decision_2": "G06 unsupported_claims 0 -> 1, decided by the rater after a consistency sweep: all 15 answers were scanned for statements about root causes or similarity criteria; only G06 and G14 contained such statements. This is the FINAL rubric; no further revisions. Files: ..._revised_step1_G14_only.* keep the intermediate state."
+}

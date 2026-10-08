@@ -1,0 +1,451 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "A1",
+ "kind": "recorded_live",
+ "title": "Monthly incident trend by service category",
+ "role": "analytics",
+ "question": "How have incident volumes changed month by month across service categories?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T17:04:08",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": false,
+  "retrieval_depends_on_sql": false,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Count the number of incidents grouped by month and service category across all available data."
+   }
+  ],
+  "retrieval_purpose": ""
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Count the number of incidents grouped by month and service category across all available data.",
+   "status": "ok",
+   "sql": "SELECT \n    strftime('%Y-%m', reported_at) AS month,\n    category AS service_category,\n    COUNT(*) AS incident_count\nFROM incidents\nGROUP BY month, service_category\nORDER BY month, service_category",
+   "attempts": 1,
+   "columns": [
+    "month",
+    "service_category",
+    "incident_count"
+   ],
+   "rows": [
+    [
+     "2025-10",
+     "data_pipeline",
+     1
+    ],
+    [
+     "2025-10",
+     "database",
+     5
+    ],
+    [
+     "2025-10",
+     "map_service",
+     2
+    ],
+    [
+     "2025-10",
+     "network",
+     2
+    ],
+    [
+     "2025-10",
+     "ui",
+     2
+    ],
+    [
+     "2025-11",
+     "data_pipeline",
+     2
+    ],
+    [
+     "2025-11",
+     "database",
+     5
+    ],
+    [
+     "2025-11",
+     "map_service",
+     6
+    ],
+    [
+     "2025-11",
+     "network",
+     1
+    ],
+    [
+     "2025-11",
+     "ui",
+     3
+    ],
+    [
+     "2025-12",
+     "auth",
+     1
+    ],
+    [
+     "2025-12",
+     "data_pipeline",
+     2
+    ],
+    [
+     "2025-12",
+     "database",
+     2
+    ],
+    [
+     "2025-12",
+     "map_service",
+     3
+    ],
+    [
+     "2025-12",
+     "network",
+     1
+    ],
+    [
+     "2025-12",
+     "ui",
+     1
+    ],
+    [
+     "2026-01",
+     "data_pipeline",
+     2
+    ],
+    [
+     "2026-01",
+     "database",
+     2
+    ],
+    [
+     "2026-01",
+     "map_service",
+     5
+    ],
+    [
+     "2026-02",
+     "auth",
+     1
+    ],
+    [
+     "2026-02",
+     "data_pipeline",
+     3
+    ],
+    [
+     "2026-02",
+     "database",
+     3
+    ],
+    [
+     "2026-02",
+     "map_service",
+     14
+    ],
+    [
+     "2026-02",
+     "network",
+     2
+    ],
+    [
+     "2026-02",
+     "ui",
+     2
+    ],
+    [
+     "2026-03",
+     "auth",
+     3
+    ],
+    [
+     "2026-03",
+     "data_pipeline",
+     1
+    ],
+    [
+     "2026-03",
+     "database",
+     5
+    ],
+    [
+     "2026-03",
+     "map_service",
+     21
+    ],
+    [
+     "2026-03",
+     "network",
+     4
+    ],
+    [
+     "2026-03",
+     "ui",
+     1
+    ],
+    [
+     "2026-04",
+     "data_pipeline",
+     2
+    ],
+    [
+     "2026-04",
+     "database",
+     1
+    ],
+    [
+     "2026-04",
+     "map_service",
+     6
+    ],
+    [
+     "2026-04",
+     "network",
+     2
+    ],
+    [
+     "2026-04",
+     "ui",
+     4
+    ],
+    [
+     "2026-05",
+     "auth",
+     3
+    ],
+    [
+     "2026-05",
+     "data_pipeline",
+     3
+    ],
+    [
+     "2026-05",
+     "database",
+     3
+    ],
+    [
+     "2026-05",
+     "map_service",
+     1
+    ],
+    [
+     "2026-05",
+     "network",
+     4
+    ],
+    [
+     "2026-05",
+     "ui",
+     1
+    ],
+    [
+     "2026-06",
+     "auth",
+     1
+    ],
+    [
+     "2026-06",
+     "data_pipeline",
+     1
+    ],
+    [
+     "2026-06",
+     "database",
+     3
+    ],
+    [
+     "2026-06",
+     "map_service",
+     4
+    ],
+    [
+     "2026-06",
+     "network",
+     3
+    ],
+    [
+     "2026-06",
+     "ui",
+     2
+    ],
+    [
+     "2026-07",
+     "auth",
+     2
+    ],
+    [
+     "2026-07",
+     "data_pipeline",
+     2
+    ],
+    [
+     "2026-07",
+     "database",
+     4
+    ],
+    [
+     "2026-07",
+     "map_service",
+     1
+    ],
+    [
+     "2026-07",
+     "network",
+     2
+    ],
+    [
+     "2026-07",
+     "ui",
+     2
+    ],
+    [
+     "2026-08",
+     "auth",
+     2
+    ],
+    [
+     "2026-08",
+     "data_pipeline",
+     4
+    ],
+    [
+     "2026-08",
+     "database",
+     5
+    ],
+    [
+     "2026-08",
+     "map_service",
+     6
+    ],
+    [
+     "2026-08",
+     "network",
+     2
+    ],
+    [
+     "2026-09",
+     "data_pipeline",
+     1
+    ],
+    [
+     "2026-09",
+     "database",
+     4
+    ],
+    [
+     "2026-09",
+     "map_service",
+     7
+    ],
+    [
+     "2026-09",
+     "network",
+     1
+    ],
+    [
+     "2026-09",
+     "ui",
+     3
+    ]
+   ],
+   "row_count": 64,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Count the number of incidents grouped by month and service category across all available data.",
+   "kind": "line",
+   "x": "month",
+   "y": "incident_count",
+   "series": "service_category",
+   "sort": "x_asc",
+   "unit": "incidents",
+   "reason": "12 periods x 6 series"
+  }
+ ],
+ "retrieval": {
+  "status": "not_requested",
+  "purpose": "",
+  "queries": [],
+  "context_ids": [],
+  "documents": []
+ },
+ "answer": "Incident volumes across service categories change month by month as follows:\n\n- **2025-10:** data_pipeline: 1, database: 5, map_service: 2, network: 2, ui: 2 [sql:t1].\n- **2025-11:** data_pipeline: 2, database: 5, map_service: 6, network: 1, ui: 3 [sql:t1].\n- **2025-12:** auth: 1, data_pipeline: 2, database: 2, map_service: 3, network: 1, ui: 1 [sql:t1].\n- **2026-01:** data_pipeline: 2, database: 2, map_service: 5 [sql:t1].\n- **2026-02:** auth: 1, data_pipeline: 3, database: 3, map_service: 14, network: 2, ui: 2 [sql:t1].\n- **2026-03:** auth: 3, data_pipeline: 1, database: 5, map_service: 21, network: 4 [sql:t1]. \n\n*(Note: Additional rows beyond March 2026 are present in the dataset but not shown here [sql:t1].)*",
+ "findings": [
+  {
+   "text": "**2025-10:** data_pipeline: 1, database: 5, map_service: 2, network: 2, ui: 2 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**2025-11:** data_pipeline: 2, database: 5, map_service: 6, network: 1, ui: 3 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**2025-12:** auth: 1, data_pipeline: 2, database: 2, map_service: 3, network: 1, ui: 1 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**2026-01:** data_pipeline: 2, database: 2, map_service: 5 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**2026-02:** auth: 1, data_pipeline: 3, database: 3, map_service: 14, network: 2, ui: 2 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**2026-03:** auth: 3, data_pipeline: 1, database: 5, map_service: 21, network: 4 [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "*(Note: Additional rows beyond March 2026 are present in the dataset but not shown here [sql:t1].)*",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 1,
+  "sql_tasks_ok": 1,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 7,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "not_requested",
+  "documents_in_context": 0,
+  "visualization": "selected by deterministic rules (no model involved)"
+ }
+}

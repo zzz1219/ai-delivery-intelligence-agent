@@ -1,0 +1,549 @@
+{
+  "meta": {
+    "model": "gemini:gemini-3.5-flash-lite",
+    "role": "PRIMARY",
+    "lanes": {
+      "retriever": "bm25",
+      "granularity": "document",
+      "lanes": "cases / guides",
+      "k_cases": 1,
+      "k_guides": 2,
+      "order": "cases then guides"
+    },
+    "state": "complete",
+    "complete": true,
+    "spec_version": "rag-generation-1.0",
+    "spec_sha256": "bbfa1cf11919cf0d23c571bc262440e5bdcf59bad815b53cf7e18c8062dce087",
+    "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+    "started_at": "2026-10-06T20:40:10",
+    "deviation_from_registered_model": false,
+    "registered_model": "gemini-3.5-flash-lite"
+  },
+  "answers": [
+    {
+      "id": "G01",
+      "group": "knowledge",
+      "question": "A customer reports severe latency after importing 10 million records. What should we check first?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0006",
+          "score": 7.3302,
+          "unit": "historical_cases/INC_0006"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/bulk_import_performance",
+          "score": 6.2674,
+          "unit": "troubleshooting_guides/bulk_import_performance"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 1.7803,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0006",
+        "troubleshooting_guides/bulk_import_performance",
+        "troubleshooting_guides/service_publication_failures"
+      ],
+      "status": "ok",
+      "answer": "Based on the provided documents, when experiencing severe latency after importing millions of records, you should follow this diagnostic order:\n\n1. Check the import batch size and transaction length first [troubleshooting_guides/bulk_import_performance].\n2. Check whether indexes are rebuilt after every batch [troubleshooting_guides/bulk_import_performance].\n3. Check memory and lock-wait metrics during the load [troubleshooting_guides/bulk_import_performance].\n4. After the load, verify indexes and statistics [troubleshooting_guides/bulk_import_performance].\n\nNo documented matching case was found in the historical cases since INC_0006 involved 15 million records rather than 10 million [historical_cases/INC_0006]."
+    },
+    {
+      "id": "G02",
+      "group": "knowledge",
+      "question": "What are the usual fixes for coordinate-system mismatch when loading data?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0049",
+          "score": 10.3237,
+          "unit": "historical_cases/INC_0049"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/crs_mismatch",
+          "score": 11.9179,
+          "unit": "troubleshooting_guides/crs_mismatch"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 1.8072,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0049",
+        "troubleshooting_guides/crs_mismatch",
+        "troubleshooting_guides/service_publication_failures"
+      ],
+      "status": "ok",
+      "answer": "Based on the provided documents, the common fixes for a coordinate system mismatch are:\n- Reproject the layers to the service coordinate system [troubleshooting_guides/crs_mismatch, historical_cases/INC_0049].\n- Correct the SRID metadata and reload [troubleshooting_guides/crs_mismatch]."
+    },
+    {
+      "id": "G03",
+      "group": "knowledge",
+      "question": "Have we seen service timeouts after distributed deployments? What was found?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0011",
+          "score": 4.48,
+          "unit": "historical_cases/INC_0011"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/service_timeouts",
+          "score": 7.0701,
+          "unit": "troubleshooting_guides/service_timeouts"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 3.4867,
+          "unit": "deployment_guides/distributed_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0011",
+        "troubleshooting_guides/service_timeouts",
+        "deployment_guides/distributed_deployment"
+      ],
+      "status": "ok",
+      "answer": "Yes, service timeouts have been seen in a distributed environment during project P03 (Grid Asset Mapping, version v3.0) [historical_cases/INC_0011]. \n\nWhat was found:\n- **Symptoms:** Users experienced long waits followed by timeout errors [historical_cases/INC_0011]. Gateway and backend logs revealed that requests exceeded the configured timeout while upstream services were still processing [historical_cases/INC_0011].\n- **Root Cause:** Intermittent request failures were traced to mismatched or too-short timeouts [historical_cases/INC_0011]."
+    },
+    {
+      "id": "G04",
+      "group": "knowledge",
+      "question": "What does the troubleshooting guide say about connection pool exhaustion?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0005",
+          "score": 11.4767,
+          "unit": "historical_cases/INC_0005"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/connection_pool_exhausted",
+          "score": 6.3935,
+          "unit": "troubleshooting_guides/connection_pool_exhausted"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 3.1454,
+          "unit": "deployment_guides/single_node_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0005",
+        "troubleshooting_guides/connection_pool_exhausted",
+        "deployment_guides/single_node_deployment"
+      ],
+      "status": "ok",
+      "answer": "Based on the troubleshooting guide, connection pool exhaustion presents the following symptoms, diagnostic steps, and fixes:\n\n**Typical symptoms:**\n- Intermittent 'cannot acquire connection' errors at peak load [troubleshooting_guides/connection_pool_exhausted].\n- Recovery after restart [troubleshooting_guides/connection_pool_exhausted].\n\n**Recommended diagnostic order:**\n1. Check pool metrics: active vs. idle connections and wait time [troubleshooting_guides/connection_pool_exhausted].\n2. Look for code paths that do not return connections (leaks) [troubleshooting_guides/connection_pool_exhausted].\n3. Compare pool size with peak concurrency across all nodes [troubleshooting_guides/connection_pool_exhausted].\n4. Review idle and acquisition timeout settings [troubleshooting_guides/connection_pool_exhausted].\n\n**Common fixes:**\n- Increase pool size and tune timeouts [troubleshooting_guides/connection_pool_exhausted].\n- Patch leaking data-access paths [troubleshooting_guides/connection_pool_exhausted]."
+    },
+    {
+      "id": "G05",
+      "group": "knowledge",
+      "question": "What should be checked before go-live of a distributed deployment?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0075",
+          "score": 7.7807,
+          "unit": "historical_cases/INC_0075"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 7.1082,
+          "unit": "deployment_guides/distributed_deployment"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/service_timeouts",
+          "score": 2.1438,
+          "unit": "troubleshooting_guides/service_timeouts"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0075",
+        "deployment_guides/distributed_deployment",
+        "troubleshooting_guides/service_timeouts"
+      ],
+      "status": "ok",
+      "answer": "Before go-live of a distributed deployment, the following should be checked:\n- Align timeouts across the load balancer, gateway, services, and database [deployment_guides/distributed_deployment].\n- Size connection pools for total concurrency across all nodes [deployment_guides/distributed_deployment].\n- Verify clock synchronization and health-check intervals between nodes [deployment_guides/distributed_deployment].\n- Verify cache scale-level configuration on every node after installation or upgrade [deployment_guides/distributed_deployment].\n- Run a load test at expected peak and review timeout and error rates [deployment_guides/distributed_deployment].\n- Test failover of one node while users are active [deployment_guides/distributed_deployment]."
+    },
+    {
+      "id": "G06",
+      "group": "symptom_answerable",
+      "question": "A new incident was reported on the Replica Database in a distributed environment: \"Intermittent connection errors and rising response time during peak hours; recovers after restart.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0030",
+          "score": 20.7729,
+          "unit": "historical_cases/INC_0030"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/connection_pool_exhausted",
+          "score": 10.1884,
+          "unit": "troubleshooting_guides/connection_pool_exhausted"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 5.4903,
+          "unit": "deployment_guides/distributed_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0030",
+        "troubleshooting_guides/connection_pool_exhausted",
+        "deployment_guides/distributed_deployment"
+      ],
+      "status": "ok",
+      "answer": "Yes, a past case with matching symptoms and root cause was recorded: Incident `INC_0030` on the Replica Database (C02), where the root cause was connection pool exhaustion [historical_cases/INC_0030].\n\n**What to check (Diagnostic Order):**\n1. Check pool metrics (active vs. idle connections and wait time) [troubleshooting_guides/connection_pool_exhausted].\n2. Look for code paths that do not return connections (leaks) [troubleshooting_guides/connection_pool_exhausted].\n3. Compare pool size with peak concurrency across all nodes [troubleshooting_guides/connection_pool_exhausted].\n4. Review idle and acquisition timeout settings [troubleshooting_guides/connection_pool_exhausted].\n\n**What to do (Common Fixes):**\n- Increase the connection pool size and tune idle and acquisition timeouts [historical_cases/INC_0030, troubleshooting_guides/connection_pool_exhausted].\n- Patch leaking data-access paths [troubleshooting_guides/connection_pool_exhausted].\n- Size pools for peak concurrency and alert on pool saturation [historical_cases/INC_0030]."
+    },
+    {
+      "id": "G07",
+      "group": "symptom_answerable",
+      "question": "A new incident was reported on the Map Service in a single node environment: \"Newly loaded layers display offset from the base map or spatial joins return nothing.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0100",
+          "score": 19.7938,
+          "unit": "historical_cases/INC_0100"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/crs_mismatch",
+          "score": 12.996,
+          "unit": "troubleshooting_guides/crs_mismatch"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/slow_queries_missing_index",
+          "score": 6.4491,
+          "unit": "troubleshooting_guides/slow_queries_missing_index"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0100",
+        "troubleshooting_guides/crs_mismatch",
+        "troubleshooting_guides/slow_queries_missing_index"
+      ],
+      "status": "ok",
+      "answer": "Yes, we have seen a similar past incident [historical_cases/INC_0100]. \n\n**Past Incident Similarity:**\nIncident `INC_0100` shares the symptoms of newly loaded layers appearing offset from the base map, with the root cause identified as a coordinate system mismatch (`crs_mismatch`) [historical_cases/INC_0100].\n\n**Recommended Checks and Actions:**\n1. Compare the layer's spatial reference ID with the service's [troubleshooting_guides/crs_mismatch].\n2. Check source data metadata for a missing or wrong SRID [troubleshooting_guides/crs_mismatch].\n3. Test with a small sample before reloading the full dataset [troubleshooting_guides/crs_mismatch].\n4. Reproject the layers to the service coordinate system or correct the SRID metadata and reload [historical_cases/INC_0100, troubleshooting_guides/crs_mismatch]."
+    },
+    {
+      "id": "G08",
+      "group": "symptom_answerable",
+      "question": "A new incident was reported on the Web Frontend in a cloud environment: \"Frontend requests go to the wrong endpoint and panels stay empty.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0016",
+          "score": 12.7086,
+          "unit": "historical_cases/INC_0016"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "deployment_guides/cloud_deployment",
+          "score": 2.59,
+          "unit": "deployment_guides/cloud_deployment"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 2.1238,
+          "unit": "deployment_guides/distributed_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0016",
+        "deployment_guides/cloud_deployment",
+        "deployment_guides/distributed_deployment"
+      ],
+      "status": "ok",
+      "answer": "Yes, we have seen a similar past incident [historical_cases/INC_0016]. \n\n**Similar Past Case:**\n- **Incident ID:** INC_0016 [historical_cases/INC_0016]\n- **Symptoms:** Some pages failed to load / blank or failing pages after a configuration update [historical_cases/INC_0016]. Browser network traces showed requests going to an outdated endpoint [historical_cases/INC_0016].\n- **Root Cause:** Frontend configuration error [historical_cases/INC_0016].\n- **Solution:** Corrected the frontend endpoint configuration [historical_cases/INC_0016]. Keep environment-specific configuration under version control [historical_cases/INC_0016].\n\n**General Checks / Actions Recommended:**\nBased on the cloud deployment checklist, you should also:\n- Confirm network paths and security groups between services [deployment_guides/cloud_deployment].\n- Configure autoscaling limits and database connection limits together [deployment_guides/cloud_deployment].\n- Verify SSO and token settings against the production identity provider [deployment_guides/cloud_deployment].\n- Run a smoke test and check cache configuration after provisioning [deployment_guides/cloud_deployment]."
+    },
+    {
+      "id": "G09",
+      "group": "symptom_answerable",
+      "question": "A new incident was reported on the Replica Database in a single node environment: \"Queries on large tables became very slow following a data load of about 10M records.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0184",
+          "score": 19.014,
+          "unit": "historical_cases/INC_0184"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/slow_queries_missing_index",
+          "score": 10.1892,
+          "unit": "troubleshooting_guides/slow_queries_missing_index"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/bulk_import_performance",
+          "score": 6.2196,
+          "unit": "troubleshooting_guides/bulk_import_performance"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0184",
+        "troubleshooting_guides/slow_queries_missing_index",
+        "troubleshooting_guides/bulk_import_performance"
+      ],
+      "status": "ok",
+      "answer": "Yes, a similar past incident has been recorded [historical_cases/INC_0184]. \n\n**Past Similar Case:**\n- **Incident ID:** INC_0184 [historical_cases/INC_0184]\n- **Symptoms:** Spatial queries timed out after a bulk data load [historical_cases/INC_0184].\n- **Root Cause:** Missing index (`missing_index`) [historical_cases/INC_0184].\n- **Solution:** Rebuilt the spatial index and re-analyzed the affected tables [historical_cases/INC_0184].\n\n**Recommended Diagnostic Order:**\n1. Inspect execution plans of the slowest queries for sequential scans [troubleshooting_guides/slow_queries_missing_index].\n2. Verify composite and spatial indexes exist and are valid on the newly loaded tables [troubleshooting_guides/slow_queries_missing_index].\n3. Check that table statistics are fresh (analyze / vacuum status) [troubleshooting_guides/slow_queries_missing_index].\n4. Compare query time before and after the load to confirm the load as the trigger [troubleshooting_guides/slow_queries_missing_index].\n\n**Common Fixes:**\n- Add a composite index on frequent filter columns [troubleshooting_guides/slow_queries_missing_index].\n- Rebuild the spatial index and refresh statistics [troubleshooting_guides/slow_queries_missing_index]."
+    },
+    {
+      "id": "G10",
+      "group": "symptom_answerable",
+      "question": "A new incident was reported on the Primary Database in a distributed environment: \"Users wait a long time and then receive timeout errors.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0086",
+          "score": 11.1143,
+          "unit": "historical_cases/INC_0086"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/service_timeouts",
+          "score": 5.9088,
+          "unit": "troubleshooting_guides/service_timeouts"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/distributed_deployment",
+          "score": 5.4644,
+          "unit": "deployment_guides/distributed_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0086",
+        "troubleshooting_guides/service_timeouts",
+        "deployment_guides/distributed_deployment"
+      ],
+      "status": "ok",
+      "answer": "Yes, we have seen a similar past incident [historical_cases/INC_0086]. In incident INC_0086, users experienced long waits followed by timeout errors in a distributed environment shortly after an upgrade to version v3.2, caused by mismatched or too-short timeouts [historical_cases/INC_0086]. \n\nTo troubleshoot and resolve this, follow these recommended diagnostic steps and fixes:\n\n**Diagnostic Order:**\n1. Compare gateway, service, and database timeouts for consistency [troubleshooting_guides/service_timeouts].\n2. Check if backends are still processing when the gateway gives up [troubleshooting_guides/service_timeouts].\n3. Check node-to-node latency and load balancer health checks in distributed deployments [troubleshooting_guides/service_timeouts].\n4. Review recent version upgrades for changed defaults [troubleshooting_guides/service_timeouts].\n\n**Common Fixes / Resolution:**\n- Raise gateway timeouts and add a bounded retry with backoff [historical_cases/INC_0086, troubleshooting_guides/service_timeouts].\n- Scale out the overloaded service if necessary [troubleshooting_guides/service_timeouts]."
+    },
+    {
+      "id": "G11",
+      "group": "no_matching_case",
+      "question": "A new incident was reported on the Map Service in a single node environment: \"Publishing the map service fails and the service stays unavailable.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0100",
+          "score": 4.5517,
+          "unit": "historical_cases/INC_0100"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 6.3876,
+          "unit": "deployment_guides/single_node_deployment"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 6.2105,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0100",
+        "deployment_guides/single_node_deployment",
+        "troubleshooting_guides/service_publication_failures"
+      ],
+      "status": "ok",
+      "answer": "No documented matching case was found for the new incident, as historical case INC_0100 involved a coordinate system mismatch (`crs_mismatch`) with layers appearing offset, rather than a service publication failure [historical_cases/INC_0100]. \n\nFor the map service publication failure, follow the recommended diagnostic order from the troubleshooting guide:\n1. Read the publishing log for the first error [troubleshooting_guides/service_publication_failures].\n2. Validate the service configuration and data source connections [troubleshooting_guides/service_publication_failures].\n3. Check the service account permissions on data and cache folders [troubleshooting_guides/service_publication_failures].\n\nCommon fixes include republishing with corrected configuration or fixing service account permissions [troubleshooting_guides/service_publication_failures]. Additionally, for single-node environments, consult the single-node deployment checklist to confirm that the database, map service, and cache share enough memory and disk, set the connection pool size within database limits, run a smoke test of import, query, and map rendering, and verify cache scale levels match the published service [deployment_guides/single_node_deployment]."
+    },
+    {
+      "id": "G12",
+      "group": "no_matching_case",
+      "question": "A new incident was reported on the Tile Cache in a single node environment: \"Publishing the map service fails and the service stays unavailable.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0033",
+          "score": 9.1379,
+          "unit": "historical_cases/INC_0033"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 7.6766,
+          "unit": "deployment_guides/single_node_deployment"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 7.0265,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0033",
+        "deployment_guides/single_node_deployment",
+        "troubleshooting_guides/service_publication_failures"
+      ],
+      "status": "ok",
+      "answer": "No documented matching case was found. \n\nFor the current symptoms of a map service failing to publish and staying unavailable, follow the recommended diagnostic order from the troubleshooting guide:\n1. Read the publishing log for the first error [troubleshooting_guides/service_publication_failures].\n2. Validate the service configuration and data source connections [troubleshooting_guides/service_publication_failures].\n3. Check the service account permissions on data and cache folders [troubleshooting_guides/service_publication_failures].\n\nCommon fixes include republishing with corrected configuration or fixing service account permissions [troubleshooting_guides/service_publication_failures]. Additionally, verify that cache scale levels match the published service as part of deployment checks [deployment_guides/single_node_deployment]."
+    },
+    {
+      "id": "G13",
+      "group": "no_matching_case",
+      "question": "A new incident was reported on the Map Service in a single node environment: \"Map service cannot be published or starts in an error state after a configuration change.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0016",
+          "score": 11.2135,
+          "unit": "historical_cases/INC_0016"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 10.5047,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 8.3229,
+          "unit": "deployment_guides/single_node_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0016",
+        "troubleshooting_guides/service_publication_failures",
+        "deployment_guides/single_node_deployment"
+      ],
+      "status": "ok",
+      "answer": "No documented matching case was found [historical_cases/INC_0016]. (Note: `historical_cases/INC_0016` describes a frontend configuration error on the Resource Census Platform web frontend, not a map service publication failure). \n\nFor the Map Service failure, follow the recommended diagnostic order:\n1. Read the publishing log for the first error [troubleshooting_guides/service_publication_failures].\n2. Validate the service configuration and data source connections [troubleshooting_guides/service_publication_failures].\n3. Check the service account permissions on data and cache folders [troubleshooting_guides/service_publication_failures].\n\nCommon fixes include:\n- Republish with corrected configuration [troubleshooting_guides/service_publication_failures].\n- Fix service account permissions [troubleshooting_guides/service_publication_failures].\n\nAdditionally, for single-node deployments, confirm that the database, map service, and cache share enough memory and disk, set the connection pool size within database limits, verify cache scale levels match the published service, and run a smoke test of import, query, and map rendering [deployment_guides/single_node_deployment]."
+    },
+    {
+      "id": "G14",
+      "group": "no_matching_case",
+      "question": "A new incident was reported on the Map Service in a cloud environment: \"Publishing the map service fails and the service stays unavailable.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0015",
+          "score": 3.7422,
+          "unit": "historical_cases/INC_0015"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 6.2105,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "deployment_guides/cloud_deployment",
+          "score": 2.59,
+          "unit": "deployment_guides/cloud_deployment"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0015",
+        "troubleshooting_guides/service_publication_failures",
+        "deployment_guides/cloud_deployment"
+      ],
+      "status": "ok",
+      "answer": "No documented matching case was found [historical_cases/INC_0015], as historical cases only describe past incidents with genuinely matching symptoms and root causes. \n\nFor the current symptom where publishing the map service fails and the service stays unavailable, follow the recommended diagnostic order and fixes for map service publication failures:\n1. Read the publishing log for the first error [troubleshooting_guides/service_publication_failures].\n2. Validate the service configuration and data source connections [troubleshooting_guides/service_publication_failures].\n3. Check the service account permissions on data and cache folders [troubleshooting_guides/service_publication_failures].\n\nCommon fixes include:\n- Republish with corrected configuration [troubleshooting_guides/service_publication_failures].\n- Fix service account permissions [troubleshooting_guides/service_publication_failures]."
+    },
+    {
+      "id": "G15",
+      "group": "no_matching_case",
+      "question": "A new incident was reported on the Map Service in a single node environment: \"Publishing the map service fails and the service stays unavailable.\" Have we seen this before, and what should we check or do?",
+      "retrieved": [
+        {
+          "lane": "cases",
+          "rank": 1,
+          "doc_id": "historical_cases/INC_0100",
+          "score": 4.5517,
+          "unit": "historical_cases/INC_0100"
+        },
+        {
+          "lane": "guides",
+          "rank": 1,
+          "doc_id": "deployment_guides/single_node_deployment",
+          "score": 6.3876,
+          "unit": "deployment_guides/single_node_deployment"
+        },
+        {
+          "lane": "guides",
+          "rank": 2,
+          "doc_id": "troubleshooting_guides/service_publication_failures",
+          "score": 6.2105,
+          "unit": "troubleshooting_guides/service_publication_failures"
+        }
+      ],
+      "context_ids": [
+        "historical_cases/INC_0100",
+        "deployment_guides/single_node_deployment",
+        "troubleshooting_guides/service_publication_failures"
+      ],
+      "status": "ok",
+      "answer": "No documented matching case was found for the new incident, as historical case INC_0100 involved a coordinate system mismatch (`crs_mismatch`) with offset layers rather than a publication failure. \n\nTo troubleshoot the map service publication failure, follow the recommended diagnostic order:\n1. Read the publishing log for the first error [troubleshooting_guides/service_publication_failures].\n2. Validate the service configuration and data source connections [troubleshooting_guides/service_publication_failures].\n3. Check the service account permissions on data and cache folders [troubleshooting_guides/service_publication_failures].\n\nCommon fixes include republishing with corrected configuration or fixing service account permissions [troubleshooting_guides/service_publication_failures]."
+    }
+  ]
+}

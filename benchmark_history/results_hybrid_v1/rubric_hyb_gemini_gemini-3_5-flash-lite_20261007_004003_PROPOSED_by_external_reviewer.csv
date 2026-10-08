@@ -1,0 +1,56 @@
+﻿question_id,item_id,item_text,machine_note,human_score,notes
+H1,sqlok:H1-s1,SQL stage: one recorded SQL task correctly computes this quantity: The mean resolution time of closed database incidents is 38.4 hours.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H1,says:H1-s1,The answer states this correctly: The mean resolution time of closed database incidents is 38.4 hours.,,1,
+H1,sqlok:H1-s2,SQL stage: one recorded SQL task correctly computes this quantity: The mean resolution time of closed non-database incidents is 16.7 hours.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H1,says:H1-s2,The answer states this correctly: The mean resolution time of closed non-database incidents is 16.7 hours.,,1,
+H1,sqlok:H1-s3,SQL stage: one recorded SQL task correctly computes this quantity: Database incidents are slower to resolve than non-database incidents.,machine screening: no task result matches (derived: confirmed by the human only),1,t1 correctly computes both means; the slower-than comparison follows directly from that result.
+H1,says:H1-s3,The answer states this correctly: Database incidents are slower to resolve than non-database incidents.,,1,
+H1,sqlok:H1-s4,SQL stage: one recorded SQL task correctly computes this quantity: The root cause with the highest mean resolution time is connection_pool_exhausted.,machine screening: matched task t2 (entity and number in the same row),1,
+H1,says:H1-s4,The answer states this correctly: The root cause with the highest mean resolution time is connection_pool_exhausted.,,1,
+H1,sqlok:H1-s5,SQL stage: one recorded SQL task correctly computes this quantity: Its mean resolution time is 41.1 hours.,machine screening: matched task t2 (entity and number in the same row),1,
+H1,says:H1-s5,The answer states this correctly: Its mean resolution time is 41.1 hours.,,1,
+H1,covered:H1-d1,The answer covers: Its troubleshooting guide recommends checking first: Check pool metrics: active vs idle connections and wait time.,evidence_in_agent_context=True,1,
+H1,unsupported_claims,Number of statements in the answer that the SQL results and the provided documents do not support,,0,
+H2,sqlok:H2-s1,SQL stage: one recorded SQL task correctly computes this quantity: The root cause with the most repeat incidents is timeout.,machine screening: no task result matches (binding rules),0,"SQL counts qualifying incident PAIRS, not distinct repeat incidents under the frozen definition; it returns crs_mismatch=37 instead of timeout."
+H2,says:H2-s1,The answer states this correctly: The root cause with the most repeat incidents is timeout.,,0,"Answer says crs_mismatch, but frozen gold is timeout."
+H2,sqlok:H2-s2,SQL stage: one recorded SQL task correctly computes this quantity: It has 25 repeat incidents.,machine screening: no task result matches (binding rules),0,"Same SQL-definition error; 37 is a pair count, not the frozen repeat-incident count of 25."
+H2,says:H2-s2,The answer states this correctly: It has 25 repeat incidents.,,0,"Answer says 37, not the frozen gold count 25."
+H2,covered:H2-d1,"The answer covers: The lesson learned recorded in similar historical cases: Keep timeouts consistent across gateway, services and database.",evidence_in_agent_context=False,0,"Answer gives the CRS lesson, not the required timeout lesson 'Keep timeouts consistent across gateway, services and database.'"
+H2,unsupported_claims,Number of statements in the answer that the SQL results and the provided documents do not support,,0,"The wrong answer is nevertheless supported by the SQL result and retrieved INC_0015; this is a SQL/planning error, not an unsupported-generation claim."
+H3,sqlok:H3-s1,SQL stage: one recorded SQL task correctly computes this quantity: The mean resolution time is 35.4 hours.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H3,says:H3-s1,The answer states this correctly: The mean resolution time is 35.4 hours.,,1,
+H3,sqlok:H3-s2,SQL stage: one recorded SQL task correctly computes this quantity: There are 8 such incidents.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H3,says:H3-s2,The answer states this correctly: There are 8 such incidents.,,1,
+H3,sqlok:H3-s3,SQL stage: one recorded SQL task correctly computes this quantity: The most common root cause among them is timeout.,machine screening: matched task t2 (entity and number in the same row),1,
+H3,says:H3-s3,The answer states this correctly: The most common root cause among them is timeout.,,1,
+H3,sqlok:H3-s4,SQL stage: one recorded SQL task correctly computes this quantity: It accounts for 4 of them.,machine screening: matched task t2 (entity and number in the same row),1,
+H3,says:H3-s4,The answer states this correctly: It accounts for 4 of them.,,1,
+H3,covered:H3-d1,"The answer covers: Its troubleshooting guide recommends checking first: Compare gateway, service and database timeouts for consistency.",evidence_in_agent_context=True,1,
+H3,unsupported_claims,Number of statements in the answer that the SQL results and the provided documents do not support,,1,"Strict reading: the extra phrase calling INC_0054 a 'symptomatically similar precedent' is not established by the aggregate H3 question/SQL results, which contain no observed incident symptoms to compare. The case facts themselves are supported."
+H4,sqlok:H4-s1,SQL stage: one recorded SQL task correctly computes this quantity: Map-service incidents in 2025-Q4: 11.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H4,says:H4-s1,The answer states this correctly: Map-service incidents in 2025-Q4: 11.,,1,
+H4,sqlok:H4-s2,SQL stage: one recorded SQL task correctly computes this quantity: Map-service incidents in 2026-Q1: 40.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H4,says:H4-s2,The answer states this correctly: Map-service incidents in 2026-Q1: 40.,,1,
+H4,sqlok:H4-s3,SQL stage: one recorded SQL task correctly computes this quantity: Map-service incidents in 2026-Q2: 11.,machine screening: matched task t1 (standalone number in a result of at most 30 rows),1,
+H4,says:H4-s3,The answer states this correctly: Map-service incidents in 2026-Q2: 11.,,1,
+H4,sqlok:H4-s4,SQL stage: one recorded SQL task correctly computes this quantity: Map-service incidents in 2026-Q3: 14.,machine screening: no task result matches (binding rules),0,"Planner/SQL task only queried 2025 Q4, 2026 Q1 and 2026 Q2; it never computed the required 2026 Q3 count."
+H4,says:H4-s4,The answer states this correctly: Map-service incidents in 2026-Q3: 14.,,0,Final answer omits the required 2026 Q3 value of 14.
+H4,sqlok:H4-s5,SQL stage: one recorded SQL task correctly computes this quantity: The version associated with most Q1 incidents is v3.2.,machine screening: matched task t2 (entity and number in the same row),1,
+H4,says:H4-s5,The answer states this correctly: The version associated with most Q1 incidents is v3.2.,,1,
+H4,sqlok:H4-s6,SQL stage: one recorded SQL task correctly computes this quantity: v3.2 accounts for 32 of the 40 Q1 incidents.,machine screening: matched task t2 (entity and number in the same row),1,
+H4,says:H4-s6,The answer states this correctly: v3.2 accounts for 32 of the 40 Q1 incidents.,,1,
+H4,covered:H4-d1,"The answer covers: At least one documented map-service case from 2026 Q1 describes a concrete failure mode (for example tile-cache scale levels reset to defaults, request timeouts, or a coordinate-system mismatch).",evidence_in_agent_context=True,1,INC_0070 provides a concrete Q1 map-service failure mode: tile_cache_misconfig.
+H4,req:H4-y1,The answer says the spike coincides with / is associated with the version.,,1,
+H4,req:H4-y2,"The answer does not present the version as the established cause of the spike (the incident counts alone establish association, not causation); citing a documented mechanism in individual cases as a plausible explanation is allowed.",,1,Answer explicitly says association/co-occurrence does not establish causation.
+H4,unsupported_claims,Number of statements in the answer that the SQL results and the provided documents do not support,,0,
+H5,sqlok:H5-s1,SQL stage: one recorded SQL task correctly computes this quantity: The project with the most open incidents is P03.,machine screening: matched task t1 (entity and number in the same row),1,
+H5,says:H5-s1,The answer states this correctly: The project with the most open incidents is P03.,,1,
+H5,sqlok:H5-s2,SQL stage: one recorded SQL task correctly computes this quantity: It has 9 open incidents.,machine screening: matched task t1 (entity and number in the same row),1,
+H5,says:H5-s2,The answer states this correctly: It has 9 open incidents.,,1,
+H5,sqlok:H5-s3,"SQL stage: one recorded SQL task correctly computes this quantity: Its open high-severity incidents in the map-service layer are: INC_0185, INC_0188, INC_0192, INC_0200.",machine screening: matched task t2 (id set equals the gold set exactly),0,"t2 omits the required project_id=P03 filter. It happens to return exactly the gold four incidents, but does not correctly compute 'for that project' as written."
+H5,says:H5-s3,"The answer states this correctly: Its open high-severity incidents in the map-service layer are: INC_0185, INC_0188, INC_0192, INC_0200.",,1,The final answer states the correct four incident IDs.
+H5,covered:H5-d-INC_0185,The answer covers: For INC_0185 a documented similar historical case exists (same failure mode).,evidence_in_agent_context=False,0,"Agent context does not contain a relevant historical case for INC_0185, and the answer incorrectly says no documented similar case was found."
+H5,covered:H5-d-INC_0192,The answer covers: For INC_0192 a documented similar historical case exists (same failure mode).,evidence_in_agent_context=True,1,INC_0049 is a symptomatically similar precedent for the wrong-location/CRS failure mode.
+H5,req:H5-y-INC_0188,For INC_0188 the answer states that no documented similar case was found and does not present an unrelated case as a precedent or assert a root cause.,,1,
+H5,req:H5-y-INC_0200,For INC_0200 the answer states that no documented similar case was found and does not present an unrelated case as a precedent or assert a root cause.,,1,
+H5,unsupported_claims,Number of statements in the answer that the SQL results and the provided documents do not support,,0,"The no-match statements follow the provided context and do not assert root causes; INC_0185 is a retrieval miss, not counted here as an unsupported factual claim under the frozen rubric."

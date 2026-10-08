@@ -1,0 +1,13 @@
+# Core: replay demo, charts, BI export, tests
+numpy>=2.0
+pandas>=2.2
+plotly>=5.24
+streamlit>=1.45
+
+# Live mode and recording (Gemini)
+google-genai>=2.0
+
+# Optional
+# langgraph            # sql_agent.agent.build_langgraph (the default loop does not need it)
+# anthropic            # AnthropicLLM adapter
+# sentence-transformers  # dense retriever used in the pre-registered retrieval-2.0 comparison

@@ -1,0 +1,367 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "H5",
+ "kind": "sealed_evaluation",
+ "title": "Open incidents and historical precedents",
+ "role": "mixed_case",
+ "question": "Which project currently has the most open incidents? For that project's open high-severity incidents in the map-service layer, have we seen similar cases before, and if so which?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T00:40:03",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": true,
+  "retrieval_depends_on_sql": true,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Identify the project with the currently highest count of open incidents."
+   },
+   {
+    "task_id": "t2",
+    "description": "List the open high-severity incidents for the identified project that are associated with the map-service layer, including their descriptions and symptoms."
+   }
+  ],
+  "retrieval_purpose": "Search historical incident case reports and troubleshooting guides for past cases similar to the open high-severity incidents in the map-service layer of the identified project."
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Identify the project with the currently highest count of open incidents.",
+   "status": "ok",
+   "sql": "SELECT \n    p.project_id,\n    p.name,\n    COUNT(i.incident_id) AS open_incident_count\nFROM projects p\nJOIN incidents i ON p.project_id = i.project_id\nWHERE i.status = 'open'\nGROUP BY p.project_id, p.name\nORDER BY open_incident_count DESC\nLIMIT 1",
+   "attempts": 1,
+   "columns": [
+    "project_id",
+    "name",
+    "open_incident_count"
+   ],
+   "rows": [
+    [
+     "P03",
+     "Grid Asset Mapping",
+     9
+    ]
+   ],
+   "row_count": 1,
+   "error": null
+  },
+  {
+   "task_id": "t2",
+   "description": "List the open high-severity incidents for the identified project that are associated with the map-service layer, including their descriptions and symptoms.",
+   "status": "ok",
+   "sql": "SELECT \n    i.incident_id,\n    i.project_id,\n    i.symptom_summary,\n    i.resolution_summary\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE i.status = 'open'\n  AND i.severity = 'high'\n  AND (c.layer = 'map_service' OR i.category = 'map_service')\nORDER BY i.reported_at",
+   "attempts": 1,
+   "columns": [
+    "incident_id",
+    "project_id",
+    "symptom_summary",
+    "resolution_summary"
+   ],
+   "rows": [
+    [
+     "INC_0185",
+     "P03",
+     "Map latency increased and tiles keep being regenerated instead of served from cache.",
+     null
+    ],
+    [
+     "INC_0188",
+     "P03",
+     "Map service cannot be published or starts in an error state after a configuration change.",
+     null
+    ],
+    [
+     "INC_0192",
+     "P03",
+     "Data loads fine but features appear in the wrong place.",
+     null
+    ],
+    [
+     "INC_0200",
+     "P03",
+     "Publishing the map service fails and the service stays unavailable.",
+     null
+    ]
+   ],
+   "row_count": 4,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Identify the project with the currently highest count of open incidents.",
+   "kind": "kpi",
+   "kpis": [
+    {
+     "column": "open_incident_count",
+     "label_columns": [
+      "project_id",
+      "name"
+     ]
+    }
+   ],
+   "unit": "incidents",
+   "reason": "one row with 1 numeric value(s)"
+  },
+  {
+   "task_id": "t2",
+   "title": "List the open high-severity incidents for the identified project that are associated with the map-service layer, includi",
+   "kind": "table",
+   "reason": "a column holds long text"
+  }
+ ],
+ "retrieval": {
+  "status": "ok",
+  "purpose": "Search historical incident case reports and troubleshooting guides for past cases similar to the open high-severity incidents in the map-service layer of the identified project.",
+  "queries": [
+   "Grid Asset Mapping map latency tile regeneration cache",
+   "map service error state configuration change publishing fails",
+   "data loads fine features wrong place map service"
+  ],
+  "context_ids": [
+   "historical_cases/INC_0028",
+   "historical_cases/INC_0016",
+   "historical_cases/INC_0049",
+   "troubleshooting_guides/tile_cache_issues",
+   "troubleshooting_guides/authentication_failures",
+   "troubleshooting_guides/service_publication_failures",
+   "troubleshooting_guides/crs_mismatch"
+  ],
+  "documents": [
+   {
+    "doc_id": "historical_cases/INC_0028",
+    "lane": "cases",
+    "title": "Incident Case INC_0028",
+    "sections": {
+     "symptoms": "Requests through the Tile Cache intermittently failed with 504 timeouts, mostly at peak usage.",
+     "investigation": "Gateway and backend logs showed requests exceeding the configured timeout while upstream services were still processing.",
+     "root cause": "Intermittent request failures were traced to mismatched or too-short timeouts.",
+     "resolution": "Aligned query and gateway timeouts and optimized the slowest queries.",
+     "lessons learned": "Keep timeouts consistent across gateway, services and database.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0028",
+     "project": "Grid Asset Mapping (P03), energy sector",
+     "component": "Tile Cache (C04)",
+     "environment": "distributed, version v3.0",
+     "severity": "low",
+     "root_cause": "timeout",
+     "solution_pattern": "tune_query_timeouts"
+    }
+   },
+   {
+    "doc_id": "historical_cases/INC_0016",
+    "lane": "cases",
+    "title": "Incident Case INC_0016",
+    "sections": {
+     "symptoms": "Some pages failed to load after configuration was updated for the single node environment.",
+     "investigation": "Browser network traces showed requests going to an outdated endpoint.",
+     "root cause": "Blank or failing pages were traced to a frontend configuration error.",
+     "resolution": "Corrected the frontend endpoint configuration.",
+     "lessons learned": "Keep environment-specific configuration under version control.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0016",
+     "project": "Resource Census Platform (P06), government sector",
+     "component": "Web Frontend (C06)",
+     "environment": "single node, version v3.1",
+     "severity": "medium",
+     "root_cause": "frontend_config_error",
+     "solution_pattern": "correct_frontend_config"
+    }
+   },
+   {
+    "doc_id": "historical_cases/INC_0049",
+    "lane": "cases",
+    "title": "Incident Case INC_0049",
+    "sections": {
+     "symptoms": "The data load completed but features displayed in the wrong location or failed spatial joins.",
+     "investigation": "Comparing layer metadata against the service showed different spatial reference identifiers.",
+     "root cause": "Misplaced or unjoinable features were traced to a coordinate system mismatch.",
+     "resolution": "Reprojected the loaded layers to the service coordinate system.",
+     "lessons learned": "Validate the spatial reference of incoming data before loading.\n\n_Synthetic case generated from the incidents table for portfolio use._"
+    },
+    "fields": {
+     "incident_id": "INC_0049",
+     "project": "Resource Census Platform (P06), government sector",
+     "component": "Map Service (C03)",
+     "environment": "single node, version v3.1",
+     "severity": "high",
+     "root_cause": "crs_mismatch",
+     "solution_pattern": "reproject_to_service_crs"
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/tile_cache_issues",
+    "lane": "guides",
+    "title": "Tile Cache and Map Latency",
+    "sections": {
+     "typical symptoms": "Map tiles are slow, blank or stale; cache hit rate drops.",
+     "recommended diagnostic order": "1. Check cache hit rate and which scale levels miss.\n2. Compare cache scale-level settings with the published map service.\n3. Check whether a recent upgrade or republish reset cache settings.\n4. Verify cache storage capacity and permissions.",
+     "common fixes": "- Restore cache scale-level configuration and re-seed tiles.\n- Rebuild the cache for affected levels."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/authentication_failures",
+    "lane": "guides",
+    "title": "Authentication and SSO Failures",
+    "sections": {
+     "typical symptoms": "Users are redirected to login, get 401 errors, or tokens fail validation.",
+     "recommended diagnostic order": "1. Check auth service logs for signature or mapping errors.\n2. Verify token validity settings and signing keys.\n3. Compare SSO attribute mapping with the identity provider.",
+     "common fixes": "- Correct token settings and refresh keys.\n- Fix the SSO attribute mapping."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/service_publication_failures",
+    "lane": "guides",
+    "title": "Map Service Publication Failures",
+    "sections": {
+     "typical symptoms": "A map service fails to publish or starts in an error state.",
+     "recommended diagnostic order": "1. Read the publishing log for the first error.\n2. Validate the service configuration and data source connections.\n3. Check the service account permissions on data and cache folders.",
+     "common fixes": "- Republish with corrected configuration.\n- Fix service account permissions."
+    }
+   },
+   {
+    "doc_id": "troubleshooting_guides/crs_mismatch",
+    "lane": "guides",
+    "title": "Coordinate System Mismatch",
+    "sections": {
+     "typical symptoms": "Layers are offset from the base map or spatial joins fail after loading data.",
+     "recommended diagnostic order": "1. Compare the layer's spatial reference ID with the service's.\n2. Check source data metadata for a missing or wrong SRID.\n3. Test with a small sample before reloading the full dataset.",
+     "common fixes": "- Reproject the layers to the service coordinate system.\n- Correct the SRID metadata and reload."
+    }
+   }
+  ]
+ },
+ "answer": "The project with the currently highest count of open incidents is Grid Asset Mapping (P03) with 9 open incidents [sql:t1]. \n\nFor project P03, the open high-severity incidents in the map-service layer are INC_0185, INC_0188, INC_0192, and INC_0200 [sql:t2]. \n\nRegarding similar past cases:\n- For INC_0192 (\"Data loads fine but features appear in the wrong place\" [sql:t2]), a symptomatically similar precedent is historical case INC_0049, where features displayed in the wrong location due to a coordinate system mismatch [historical_cases/INC_0049]. \n- For the other open high-severity map-service incidents (INC_0185, INC_0188, and INC_0200) [sql:t2], no documented similar case was found in the historical records.",
+ "findings": [
+  {
+   "text": "The project with the currently highest count of open incidents is Grid Asset Mapping (P03) with 9 open incidents [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "For project P03, the open high-severity incidents in the map-service layer are INC_0185, INC_0188, INC_0192, and INC_0200 [sql:t2].",
+   "sql_tasks": [
+    "t2"
+   ],
+   "docs": []
+  },
+  {
+   "text": "For INC_0192 (\"Data loads fine but features appear in the wrong place\" [sql:t2]), a symptomatically similar precedent is historical case INC_0049, where features displayed in the wrong location due to a coordinate system mismatch [historical_cases/INC_0049].",
+   "sql_tasks": [
+    "t2"
+   ],
+   "docs": [
+    "historical_cases/INC_0049"
+   ]
+  },
+  {
+   "text": "For the other open high-severity map-service incidents (INC_0185, INC_0188, and INC_0200) [sql:t2], no documented similar case was found in the historical records.",
+   "sql_tasks": [
+    "t2"
+   ],
+   "docs": []
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 2,
+  "sql_tasks_ok": 2,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 5,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "ok",
+  "documents_in_context": 7,
+  "visualization": "selected by deterministic rules (no model involved)"
+ },
+ "evaluation": {
+  "benchmark": "hybrid-1.0",
+  "benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "run_file": "hyb_gemini_gemini-3_5-flash-lite_20261007_004003.json",
+  "question_id": "H5",
+  "scoring": "final, sealed",
+  "provenance": "human scores proposed by an external reviewer, verified against the run, adopted by the project author",
+  "route_compliant": true,
+  "sql_facts": [
+   {
+    "id": "H5-s1",
+    "statement": "The project with the most open incidents is P03.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H5-s2",
+    "statement": "It has 9 open incidents.",
+    "machine_matched_task": "t1",
+    "human_sql_ok": true,
+    "answer_states_it": true
+   },
+   {
+    "id": "H5-s3",
+    "statement": "Its open high-severity incidents in the map-service layer are: INC_0185, INC_0188, INC_0192, INC_0200.",
+    "machine_matched_task": "t2",
+    "human_sql_ok": false,
+    "answer_states_it": true
+   }
+  ],
+  "doc_facts": [
+   {
+    "id": "H5-d-INC_0185",
+    "statement": "For INC_0185 a documented similar historical case exists (same failure mode).",
+    "evidence_in_agent_context": false,
+    "evidence_in_oracle_context": true,
+    "covered": false,
+    "frozen_attribution": "propagated_from_sql",
+    "posthoc_attribution": "query_formulation_failure"
+   },
+   {
+    "id": "H5-d-INC_0192",
+    "statement": "For INC_0192 a documented similar historical case exists (same failure mode).",
+    "evidence_in_agent_context": true,
+    "evidence_in_oracle_context": true,
+    "covered": true,
+    "frozen_attribution": "propagated_from_sql",
+    "posthoc_attribution": "covered"
+   }
+  ],
+  "requirements": [
+   {
+    "id": "H5-y-INC_0188",
+    "statement": "For INC_0188 the answer states that no documented similar case was found and does not present an unrelated case as a precedent or assert a root cause.",
+    "met": true
+   },
+   {
+    "id": "H5-y-INC_0200",
+    "statement": "For INC_0200 the answer states that no documented similar case was found and does not present an unrelated case as a precedent or assert a root cause.",
+    "met": true
+   }
+  ],
+  "unsupported_claims": 0,
+  "oracle_context_ids": [
+   "historical_cases/INC_0026",
+   "historical_cases/INC_0016",
+   "historical_cases/INC_0049",
+   "historical_cases/INC_0100",
+   "troubleshooting_guides/tile_cache_issues",
+   "deployment_guides/single_node_deployment",
+   "troubleshooting_guides/service_publication_failures",
+   "troubleshooting_guides/crs_mismatch"
+  ],
+  "oracle_note": "documents the benchmark's standard queries retrieve; a diagnostic that was never shown to any model",
+  "case_note": "Right project and the right four incidents, but the SQL task has no project filter (the rows are right only because no other project has such incidents). INC_0192 found a symptomatically similar precedent (INC_0049). INC_0185 is a query-formulation failure: the model's query contained the project name, BM25 returned a same-project Tile Cache TIMEOUT case, the model rightly did not call it similar, while the standard-query context contains the real tile-cache precedent. INC_0188 and INC_0200 correctly report that no documented similar case was found and assert no root cause. The frozen attribution labels both documented facts 'propagated from SQL' because of the SQL-method rejection; the post-hoc, result-based attribution shows the real mechanism."
+ }
+}

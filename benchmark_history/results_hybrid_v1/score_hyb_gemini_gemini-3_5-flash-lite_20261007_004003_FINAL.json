@@ -1,0 +1,126 @@
+{
+  "run": "hyb_gemini_gemini-3_5-flash-lite_20261007_004003.json",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "summary": {
+    "query_status": {
+      "ok": 5
+    },
+    "route": {
+      "n": 5,
+      "compliant": 5,
+      "plan_failed": 0,
+      "note": "route compliance, not routing accuracy: all questions expect the same plan"
+    },
+    "sql_stage": {
+      "facts": 20,
+      "machine_matched": 16,
+      "human_confirmed": 16,
+      "both_yes": 15,
+      "both_no": 3,
+      "machine_yes_human_no": 1,
+      "machine_no_human_yes": 1,
+      "per_question": {
+        "H1": [
+          "H1-s1:ok",
+          "H1-s2:ok",
+          "H1-s3:ok",
+          "H1-s4:ok",
+          "H1-s5:ok"
+        ],
+        "H2": [
+          "H2-s1:no",
+          "H2-s2:no"
+        ],
+        "H3": [
+          "H3-s1:ok",
+          "H3-s2:ok",
+          "H3-s3:ok",
+          "H3-s4:ok"
+        ],
+        "H4": [
+          "H4-s1:ok",
+          "H4-s2:ok",
+          "H4-s3:ok",
+          "H4-s4:no",
+          "H4-s5:ok",
+          "H4-s6:ok"
+        ],
+        "H5": [
+          "H5-s1:ok",
+          "H5-s2:ok",
+          "H5-s3:no"
+        ]
+      }
+    },
+    "retrieval_stage": {
+      "doc_facts": 6,
+      "evidence_in_agent_context": 4,
+      "evidence_in_oracle_context": 6
+    },
+    "failure_attribution": {
+      "covered": 3,
+      "propagated_from_sql": 3
+    },
+    "attribution_per_fact": {
+      "H1": {
+        "H1-d1": "covered"
+      },
+      "H2": {
+        "H2-d1": "propagated_from_sql"
+      },
+      "H3": {
+        "H3-d1": "covered"
+      },
+      "H4": {
+        "H4-d1": "covered"
+      },
+      "H5": {
+        "H5-d-INC_0185": "propagated_from_sql",
+        "H5-d-INC_0192": "propagated_from_sql"
+      }
+    },
+    "posthoc_result_based_attribution": {
+      "covered": 4,
+      "propagated_from_sql": 1,
+      "query_formulation_failure": 1
+    },
+    "posthoc_result_based_per_fact": {
+      "H1": {
+        "H1-d1": "covered"
+      },
+      "H2": {
+        "H2-d1": "propagated_from_sql"
+      },
+      "H3": {
+        "H3-d1": "covered"
+      },
+      "H4": {
+        "H4-d1": "covered"
+      },
+      "H5": {
+        "H5-d-INC_0185": "query_formulation_failure",
+        "H5-d-INC_0192": "covered"
+      }
+    },
+    "posthoc_note": "post-hoc, does not replace the frozen attribution: a SQL dependency propagates only when the SQL RESULT was wrong (human rejected it and the machine screening did not find the gold value either)",
+    "synthesis_stage": {
+      "sql_facts_stated": 17,
+      "doc_facts_covered": 4,
+      "requirements": 4,
+      "requirements_met": 4
+    },
+    "citations": {
+      "answers": 5,
+      "invalid_doc_citations": 0,
+      "invalid_sql_citations": 0,
+      "answers_without_citation": 0,
+      "answers_with_unsupported_numbers": 0
+    },
+    "unsupported_claims": {
+      "total": 0,
+      "answers_with_any": 0,
+      "n": 5
+    },
+    "note": "no composite score; five questions form a smoke-level benchmark; H5 is a deliberately selected challenge slice"
+  }
+}

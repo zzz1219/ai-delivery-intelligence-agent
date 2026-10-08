@@ -1,0 +1,713 @@
+{
+  "reference_date": "2026-10-05",
+  "seed": 58,
+  "cases": [
+    {
+      "id": "S1",
+      "type": "sql",
+      "expected_route": "SQL",
+      "question": "Which project had the most critical incidents last quarter?",
+      "reference_sql": [
+        "S1_most_critical_incidents_last_quarter"
+      ],
+      "gold": {
+        "answer": "P03",
+        "ranking": [
+          [
+            "P03",
+            4
+          ],
+          [
+            "P10",
+            1
+          ],
+          [
+            "P05",
+            1
+          ],
+          [
+            "P01",
+            1
+          ]
+        ]
+      },
+      "expected_doc_ids": [],
+      "expected_guides": []
+    },
+    {
+      "id": "S2",
+      "type": "sql",
+      "expected_route": "SQL",
+      "question": "What is the average resolution time by category?",
+      "reference_sql": [
+        "S2_avg_resolution_hours_by_category"
+      ],
+      "gold": {
+        "rows": [
+          [
+            "database",
+            38.4
+          ],
+          [
+            "map_service",
+            21.0
+          ],
+          [
+            "data_pipeline",
+            16.1
+          ],
+          [
+            "network",
+            13.2
+          ],
+          [
+            "auth",
+            11.2
+          ],
+          [
+            "ui",
+            10.4
+          ]
+        ]
+      },
+      "expected_doc_ids": [],
+      "expected_guides": []
+    },
+    {
+      "id": "S3",
+      "type": "sql",
+      "expected_route": "SQL",
+      "question": "Show the monthly incident trend for the map_service component.",
+      "reference_sql": [
+        "S3_map_service_monthly_trend"
+      ],
+      "gold": {
+        "rows": [
+          [
+            "2025-10",
+            2
+          ],
+          [
+            "2025-11",
+            6
+          ],
+          [
+            "2025-12",
+            3
+          ],
+          [
+            "2026-01",
+            5
+          ],
+          [
+            "2026-02",
+            14
+          ],
+          [
+            "2026-03",
+            21
+          ],
+          [
+            "2026-04",
+            6
+          ],
+          [
+            "2026-05",
+            1
+          ],
+          [
+            "2026-06",
+            4
+          ],
+          [
+            "2026-07",
+            1
+          ],
+          [
+            "2026-08",
+            6
+          ],
+          [
+            "2026-09",
+            7
+          ]
+        ]
+      },
+      "expected_doc_ids": [],
+      "expected_guides": []
+    },
+    {
+      "id": "S4",
+      "type": "sql",
+      "expected_route": "SQL",
+      "question": "Which environment type has the most timeout incidents per deployment?",
+      "reference_sql": [
+        "S4_timeouts_per_deployment_by_env"
+      ],
+      "gold": {
+        "rows": [
+          [
+            "distributed",
+            9.75
+          ],
+          [
+            "single_node",
+            2.0
+          ],
+          [
+            "cloud",
+            1.6
+          ]
+        ]
+      },
+      "expected_doc_ids": [],
+      "expected_guides": []
+    },
+    {
+      "id": "S5",
+      "type": "sql",
+      "expected_route": "SQL",
+      "question": "What share of incidents are still open, by severity?",
+      "reference_sql": [
+        "S5_open_share_by_severity"
+      ],
+      "gold": {
+        "rows": [
+          [
+            "critical",
+            3.4
+          ],
+          [
+            "high",
+            16.2
+          ],
+          [
+            "low",
+            6.0
+          ],
+          [
+            "medium",
+            6.0
+          ]
+        ]
+      },
+      "expected_doc_ids": [],
+      "expected_guides": []
+    },
+    {
+      "id": "R1",
+      "type": "rag",
+      "expected_route": "RAG",
+      "question": "A customer reports severe latency after importing 10 million records. What should we check first?",
+      "reference_sql": [],
+      "gold": {
+        "first_checks": [
+          "import batch size / transaction length",
+          "index existence and statistics after the load"
+        ]
+      },
+      "expected_doc_ids": [
+        "INC_0002",
+        "INC_0006",
+        "INC_0010",
+        "INC_0017",
+        "INC_0018",
+        "INC_0021",
+        "INC_0038",
+        "INC_0048",
+        "INC_0062",
+        "INC_0161"
+      ],
+      "expected_guides": [
+        "bulk_import_performance.md",
+        "slow_queries_missing_index.md"
+      ]
+    },
+    {
+      "id": "R2",
+      "type": "rag",
+      "expected_route": "RAG",
+      "question": "What are the usual fixes for coordinate-system mismatch when loading data?",
+      "reference_sql": [],
+      "gold": {
+        "fixes": [
+          "reproject_to_service_crs",
+          "set_correct_srid"
+        ]
+      },
+      "expected_doc_ids": [
+        "INC_0001",
+        "INC_0015",
+        "INC_0024",
+        "INC_0049",
+        "INC_0058",
+        "INC_0074",
+        "INC_0100",
+        "INC_0111"
+      ],
+      "expected_guides": [
+        "crs_mismatch.md"
+      ]
+    },
+    {
+      "id": "R3",
+      "type": "rag",
+      "expected_route": "RAG",
+      "question": "Have we seen service timeouts after distributed deployments? What was found?",
+      "reference_sql": [],
+      "gold": {},
+      "expected_doc_ids": [
+        "INC_0008",
+        "INC_0011",
+        "INC_0028",
+        "INC_0054",
+        "INC_0086",
+        "INC_0117",
+        "INC_0151",
+        "INC_0152",
+        "INC_0165"
+      ],
+      "expected_guides": [
+        "service_timeouts.md"
+      ]
+    },
+    {
+      "id": "R4",
+      "type": "rag",
+      "expected_route": "RAG",
+      "question": "What does the troubleshooting guide say about connection pool exhaustion?",
+      "reference_sql": [],
+      "gold": {},
+      "expected_doc_ids": [
+        "INC_0004",
+        "INC_0005",
+        "INC_0030",
+        "INC_0067",
+        "INC_0101"
+      ],
+      "expected_guides": [
+        "connection_pool_exhausted.md"
+      ]
+    },
+    {
+      "id": "R5",
+      "type": "rag",
+      "expected_route": "RAG",
+      "question": "What should be checked before go-live of a distributed deployment?",
+      "reference_sql": [],
+      "gold": {},
+      "expected_doc_ids": [],
+      "expected_guides": [
+        "distributed_deployment.md"
+      ]
+    },
+    {
+      "id": "H1",
+      "type": "hybrid",
+      "expected_route": "HYBRID",
+      "question": "Are database incidents slower to resolve than others, and which fixes worked before?",
+      "reference_sql": [
+        "H1_resolution_hours_database_vs_others"
+      ],
+      "gold": {
+        "avg_hours": {
+          "database": 38.4,
+          "other": 16.7
+        },
+        "database_slower": true,
+        "top_fixes": [
+          [
+            "increase_pool_size_and_timeouts",
+            13
+          ],
+          [
+            "add_composite_index",
+            9
+          ],
+          [
+            "rebuild_spatial_index",
+            7
+          ]
+        ]
+      },
+      "expected_doc_ids": [
+        "INC_0002",
+        "INC_0004",
+        "INC_0005",
+        "INC_0010",
+        "INC_0017",
+        "INC_0021",
+        "INC_0025",
+        "INC_0030",
+        "INC_0067",
+        "INC_0086",
+        "INC_0101",
+        "INC_0152",
+        "INC_0161",
+        "INC_0184"
+      ],
+      "expected_guides": []
+    },
+    {
+      "id": "H2",
+      "type": "hybrid",
+      "expected_route": "HYBRID",
+      "question": "Which component has the most repeat incidents, and what root causes and solutions appear?",
+      "reference_sql": [
+        "H2_repeat_incidents_by_component",
+        "H2b_repeat_incident_details"
+      ],
+      "gold": {
+        "top_component": "C03",
+        "ranking": [
+          [
+            "C03",
+            27
+          ],
+          [
+            "C04",
+            15
+          ],
+          [
+            "C05",
+            11
+          ],
+          [
+            "C07",
+            8
+          ]
+        ],
+        "root_causes": [
+          [
+            "crs_mismatch",
+            11
+          ],
+          [
+            "timeout",
+            9
+          ],
+          [
+            "tile_cache_misconfig",
+            7
+          ]
+        ],
+        "solutions": [
+          [
+            "reproject_to_service_crs",
+            7
+          ],
+          [
+            "rebuild_tile_cache",
+            5
+          ],
+          [
+            "increase_gateway_timeout_and_retry",
+            5
+          ],
+          [
+            "set_correct_srid",
+            4
+          ],
+          [
+            "scale_out_service",
+            3
+          ],
+          [
+            "adjust_cache_scale_levels",
+            2
+          ],
+          [
+            "tune_query_timeouts",
+            1
+          ]
+        ]
+      },
+      "expected_doc_ids": [
+        "INC_0015",
+        "INC_0026",
+        "INC_0049",
+        "INC_0050",
+        "INC_0051",
+        "INC_0058",
+        "INC_0070",
+        "INC_0071",
+        "INC_0074",
+        "INC_0085",
+        "INC_0100",
+        "INC_0111"
+      ],
+      "expected_guides": []
+    },
+    {
+      "id": "H3",
+      "type": "hybrid",
+      "expected_route": "HYBRID",
+      "question": "How long do critical incidents take in distributed deployments, and what fix was most common?",
+      "reference_sql": [
+        "H3_critical_in_distributed",
+        "H3b_fix_counts_critical_distributed"
+      ],
+      "gold": {
+        "avg_hours": 35.4,
+        "n": 8,
+        "fix_counts": [
+          [
+            "increase_gateway_timeout_and_retry",
+            2
+          ],
+          [
+            "tune_query_timeouts",
+            1
+          ],
+          [
+            "scale_out_service",
+            1
+          ],
+          [
+            "reduce_batch_size_pause_index_rebuild",
+            1
+          ],
+          [
+            "increase_pool_size_and_timeouts",
+            1
+          ],
+          [
+            "correct_frontend_config",
+            1
+          ],
+          [
+            "adjust_cache_scale_levels",
+            1
+          ]
+        ],
+        "most_common_fix": "increase_gateway_timeout_and_retry"
+      },
+      "expected_doc_ids": [
+        "INC_0052"
+      ],
+      "expected_guides": []
+    },
+    {
+      "id": "H4",
+      "type": "hybrid",
+      "expected_route": "HYBRID",
+      "question": "Did map_service incidents spike in Q1 2026, and what causes were documented?",
+      "reference_sql": [
+        "H4_map_service_by_quarter",
+        "H4b_q1_map_service_by_version"
+      ],
+      "gold": {
+        "by_quarter": {
+          "2025-Q4": 11,
+          "2026-Q1": 40,
+          "2026-Q2": 11,
+          "2026-Q3": 14
+        },
+        "q1_by_version": {
+          "v3.2": 32,
+          "v3.1": 8
+        },
+        "v32_share": 0.8,
+        "spike": true,
+        "may_say_coincided_with_v3_2": true,
+        "documented_causes": [
+          [
+            "tile_cache_misconfig",
+            8
+          ],
+          [
+            "crs_mismatch",
+            4
+          ],
+          [
+            "timeout",
+            2
+          ]
+        ]
+      },
+      "expected_doc_ids": [
+        "INC_0042",
+        "INC_0043",
+        "INC_0046",
+        "INC_0049",
+        "INC_0050",
+        "INC_0051",
+        "INC_0052",
+        "INC_0054",
+        "INC_0058",
+        "INC_0070",
+        "INC_0071",
+        "INC_0074",
+        "INC_0085",
+        "INC_0100"
+      ],
+      "expected_guides": [
+        "tile_cache_issues.md"
+      ]
+    },
+    {
+      "id": "H5",
+      "type": "hybrid",
+      "expected_route": "HYBRID",
+      "question": "For the project with the most open incidents, are there similar closed cases?",
+      "reference_sql": [
+        "H5_open_incidents_by_project",
+        "H5b_open_incidents_of_project"
+      ],
+      "gold": {
+        "project": "P03",
+        "open_incident_ids": [
+          "INC_0175",
+          "INC_0180",
+          "INC_0182",
+          "INC_0185",
+          "INC_0188",
+          "INC_0191",
+          "INC_0192",
+          "INC_0196",
+          "INC_0200"
+        ],
+        "undocumented_incident_ids": [
+          "INC_0188",
+          "INC_0200"
+        ],
+        "expected_behavior_for_undocumented": "state that no directly documented closed case was found",
+        "similar_doc_ids_by_open_incident": {
+          "INC_0175": [
+            "INC_0002",
+            "INC_0010",
+            "INC_0017",
+            "INC_0021",
+            "INC_0025",
+            "INC_0161",
+            "INC_0184"
+          ],
+          "INC_0180": [
+            "INC_0006",
+            "INC_0018",
+            "INC_0038",
+            "INC_0048",
+            "INC_0062",
+            "INC_0064",
+            "INC_0164"
+          ],
+          "INC_0182": [
+            "INC_0004",
+            "INC_0005",
+            "INC_0030",
+            "INC_0067",
+            "INC_0101"
+          ],
+          "INC_0185": [
+            "INC_0026",
+            "INC_0033",
+            "INC_0042",
+            "INC_0043",
+            "INC_0046",
+            "INC_0050",
+            "INC_0051",
+            "INC_0052",
+            "INC_0070",
+            "INC_0085"
+          ],
+          "INC_0191": [
+            "INC_0003",
+            "INC_0008",
+            "INC_0009",
+            "INC_0011",
+            "INC_0027",
+            "INC_0028",
+            "INC_0031",
+            "INC_0036",
+            "INC_0054",
+            "INC_0071",
+            "INC_0086",
+            "INC_0117",
+            "INC_0138",
+            "INC_0151",
+            "INC_0152",
+            "INC_0165",
+            "INC_0181"
+          ],
+          "INC_0192": [
+            "INC_0001",
+            "INC_0015",
+            "INC_0024",
+            "INC_0049",
+            "INC_0058",
+            "INC_0074",
+            "INC_0100",
+            "INC_0111"
+          ],
+          "INC_0196": [
+            "INC_0001",
+            "INC_0015",
+            "INC_0024",
+            "INC_0049",
+            "INC_0058",
+            "INC_0074",
+            "INC_0100",
+            "INC_0111"
+          ]
+        }
+      },
+      "expected_doc_ids": [
+        "INC_0001",
+        "INC_0002",
+        "INC_0003",
+        "INC_0004",
+        "INC_0005",
+        "INC_0006",
+        "INC_0008",
+        "INC_0009",
+        "INC_0010",
+        "INC_0011",
+        "INC_0015",
+        "INC_0017",
+        "INC_0018",
+        "INC_0021",
+        "INC_0024",
+        "INC_0025",
+        "INC_0026",
+        "INC_0027",
+        "INC_0028",
+        "INC_0030",
+        "INC_0031",
+        "INC_0033",
+        "INC_0036",
+        "INC_0038",
+        "INC_0042",
+        "INC_0043",
+        "INC_0046",
+        "INC_0048",
+        "INC_0049",
+        "INC_0050",
+        "INC_0051",
+        "INC_0052",
+        "INC_0054",
+        "INC_0058",
+        "INC_0062",
+        "INC_0064",
+        "INC_0067",
+        "INC_0070",
+        "INC_0071",
+        "INC_0074",
+        "INC_0085",
+        "INC_0086",
+        "INC_0100",
+        "INC_0101",
+        "INC_0111",
+        "INC_0117",
+        "INC_0138",
+        "INC_0151",
+        "INC_0152",
+        "INC_0161",
+        "INC_0164",
+        "INC_0165",
+        "INC_0181",
+        "INC_0184"
+      ],
+      "expected_guides": []
+    }
+  ]
+}

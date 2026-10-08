@@ -1,0 +1,9 @@
+component_id,name,layer
+C01,Primary Database,database
+C02,Replica Database,database
+C03,Map Service,map_service
+C04,Tile Cache,map_service
+C05,Data Import Pipeline,data_pipeline
+C06,Web Frontend,ui
+C07,API Gateway,network
+C08,Auth Service,auth

@@ -1,0 +1,154 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "A4",
+ "kind": "recorded_live",
+ "title": "Open incidents by project",
+ "role": "analytics",
+ "question": "Which projects currently have the most open incidents?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T17:04:19",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": false,
+  "retrieval_depends_on_sql": false,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Count the number of open incidents per project, and return the projects with the highest counts."
+   }
+  ],
+  "retrieval_purpose": ""
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Count the number of open incidents per project, and return the projects with the highest counts.",
+   "status": "ok",
+   "sql": "SELECT \n    p.project_id,\n    p.name,\n    COUNT(i.incident_id) AS open_incidents_count\nFROM projects p\nJOIN incidents i ON p.project_id = i.project_id\nWHERE i.status = 'open'\nGROUP BY p.project_id, p.name\nORDER BY open_incidents_count DESC",
+   "attempts": 1,
+   "columns": [
+    "project_id",
+    "name",
+    "open_incidents_count"
+   ],
+   "rows": [
+    [
+     "P03",
+     "Grid Asset Mapping",
+     9
+    ],
+    [
+     "P09",
+     "Port Operations Map",
+     2
+    ],
+    [
+     "P01",
+     "Urban Spatial Data Platform",
+     1
+    ],
+    [
+     "P04",
+     "Transit Network Digital Twin",
+     1
+    ],
+    [
+     "P05",
+     "Pipeline Monitoring Portal",
+     1
+    ],
+    [
+     "P07",
+     "Planning Review System",
+     1
+    ]
+   ],
+   "row_count": 6,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Count the number of open incidents per project, and return the projects with the highest counts.",
+   "kind": "bar",
+   "x": "project_id",
+   "y": "open_incidents_count",
+   "sort": "y_desc",
+   "orientation": "v",
+   "unit": "incidents",
+   "reason": "6 categories"
+  }
+ ],
+ "retrieval": {
+  "status": "not_requested",
+  "purpose": "",
+  "queries": [],
+  "context_ids": [],
+  "documents": []
+ },
+ "answer": "Based on the SQL results, the projects with the most open incidents are:\n\n* **Grid Asset Mapping (P03)** with 9 open incidents [sql:t1].\n* **Port Operations Map (P09)** with 2 open incidents [sql:t1].\n* **Urban Spatial Data Platform (P01)** with 1 open incident [sql:t1].\n* **Transit Network Digital Twin (P04)** with 1 open incident [sql:t1].\n* **Pipeline Monitoring Portal (P05)** with 1 open incident [sql:t1].\n* **Planning Review System (P07)** with 1 open incident [sql:t1].",
+ "findings": [
+  {
+   "text": "**Grid Asset Mapping (P03)** with 9 open incidents [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Port Operations Map (P09)** with 2 open incidents [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Urban Spatial Data Platform (P01)** with 1 open incident [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Transit Network Digital Twin (P04)** with 1 open incident [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Pipeline Monitoring Portal (P05)** with 1 open incident [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Planning Review System (P07)** with 1 open incident [sql:t1].",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 1,
+  "sql_tasks_ok": 1,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 6,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "not_requested",
+  "documents_in_context": 0,
+  "visualization": "selected by deterministic rules (no model involved)"
+ }
+}

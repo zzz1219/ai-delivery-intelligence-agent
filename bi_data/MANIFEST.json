@@ -1,0 +1,308 @@
+{
+  "export_version": "bi-export-1.0",
+  "footer": "Synthetic portfolio dataset with intentionally planted operational patterns; findings are demonstrations of analytical behavior, not real business observations.",
+  "source": {
+    "database": "data/delivery.db",
+    "database_sha256": "64c10ae5e826d98ef06e0af40374d06e959a07feaa7312ecac360652844ce494",
+    "public_data_only": true
+  },
+  "definitions": {
+    "resolution_hours": "(resolved_at - reported_at) in hours, closed incidents only",
+    "repeat_incident": "closed incident with at least one other closed incident of the same project, component and root cause within +-90 days (distinct incidents, not pairs)",
+    "root_cause": "known only for closed incidents; open incidents are not-yet-determined, never guessed",
+    "month_quarter": "calendar month / quarter of the reported date",
+    "date_key": "reported date; resolved dates are not a relationship"
+  },
+  "relationships": [
+    {
+      "many": "fact_incidents.project_id",
+      "one": "dim_project.project_id"
+    },
+    {
+      "many": "fact_incidents.component_id",
+      "one": "dim_component.component_id"
+    },
+    {
+      "many": "fact_incidents.deployment_id",
+      "one": "dim_deployment.deployment_id"
+    },
+    {
+      "many": "fact_incidents.date_key",
+      "one": "dim_date.date_key"
+    }
+  ],
+  "root_cause_rule": "restrict root-cause visuals to is_root_cause_known = 1 (closed incidents)",
+  "reconciled_against": "sealed hybrid-1.0 gold values (H1-H5 SQL facts) and the database",
+  "tables": {
+    "fact_incidents": {
+      "rows": 200,
+      "sha256": "f139da63b1540c88bb21c9704246bcd399fe31fb52a49b40f8fed9f641ce892e",
+      "columns": [
+        {
+          "name": "incident_id",
+          "type": "text",
+          "description": "Primary key, one row per incident"
+        },
+        {
+          "name": "project_id",
+          "type": "text",
+          "description": "FK to dim_project"
+        },
+        {
+          "name": "component_id",
+          "type": "text",
+          "description": "FK to dim_component"
+        },
+        {
+          "name": "deployment_id",
+          "type": "text",
+          "description": "FK to dim_deployment"
+        },
+        {
+          "name": "date_key",
+          "type": "int",
+          "description": "FK to dim_date: the REPORTED date as YYYYMMDD"
+        },
+        {
+          "name": "severity",
+          "type": "text",
+          "description": "critical / high / medium / low"
+        },
+        {
+          "name": "severity_sort",
+          "type": "int",
+          "description": "1 = critical ... 4 = low (use as the sort column of severity)"
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "description": "layer of the affected component (database, map_service, ...)"
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "description": "open / closed"
+        },
+        {
+          "name": "is_open",
+          "type": "int",
+          "description": "1 if status is open"
+        },
+        {
+          "name": "is_closed",
+          "type": "int",
+          "description": "1 if status is closed"
+        },
+        {
+          "name": "is_critical",
+          "type": "int",
+          "description": "1 if severity is critical"
+        },
+        {
+          "name": "reported_at",
+          "type": "datetime",
+          "description": "when the incident was reported"
+        },
+        {
+          "name": "resolved_at",
+          "type": "datetime",
+          "description": "blank for open incidents"
+        },
+        {
+          "name": "resolution_hours",
+          "type": "float",
+          "description": "(resolved_at - reported_at) in hours; BLANK for open incidents, so AVERAGE() covers closed incidents only"
+        },
+        {
+          "name": "month",
+          "type": "text",
+          "description": "YYYY-MM of the reported date"
+        },
+        {
+          "name": "quarter",
+          "type": "text",
+          "description": "YYYY-Qn of the reported date (calendar quarters)"
+        },
+        {
+          "name": "root_cause",
+          "type": "text",
+          "description": "BLANK for open incidents: the root cause is not yet determined"
+        },
+        {
+          "name": "is_root_cause_known",
+          "type": "int",
+          "description": "1 for closed incidents; root-cause visuals must be restricted to these"
+        },
+        {
+          "name": "solution_pattern",
+          "type": "text",
+          "description": "blank for open incidents"
+        },
+        {
+          "name": "is_repeat_90d",
+          "type": "int",
+          "description": "1 if the incident is a CLOSED incident with at least one other closed incident of the same project, component and root cause within +-90 days; 0 otherwise (always 0 for open incidents)"
+        },
+        {
+          "name": "symptom_summary",
+          "type": "text",
+          "description": "short symptom description (public)"
+        },
+        {
+          "name": "resolution_summary",
+          "type": "text",
+          "description": "blank for open incidents"
+        }
+      ]
+    },
+    "dim_project": {
+      "rows": 10,
+      "sha256": "6ac91e901d7eb7c00ec36024de1abb9bdd2c0c23d9cd5c3b52a30b94ef77839f",
+      "columns": [
+        {
+          "name": "project_id",
+          "type": "text",
+          "description": "Primary key"
+        },
+        {
+          "name": "project_name",
+          "type": "text",
+          "description": ""
+        },
+        {
+          "name": "start_date",
+          "type": "date",
+          "description": ""
+        },
+        {
+          "name": "project_status",
+          "type": "text",
+          "description": ""
+        },
+        {
+          "name": "sla_tier",
+          "type": "text",
+          "description": "gold / silver / bronze"
+        },
+        {
+          "name": "customer_id",
+          "type": "text",
+          "description": ""
+        },
+        {
+          "name": "customer_name",
+          "type": "text",
+          "description": "fictional"
+        },
+        {
+          "name": "industry",
+          "type": "text",
+          "description": "government / energy / transport / utilities"
+        },
+        {
+          "name": "region",
+          "type": "text",
+          "description": ""
+        }
+      ]
+    },
+    "dim_component": {
+      "rows": 8,
+      "sha256": "564bb58c93437e0a75c227e660a560f2d872665c39b6d90884122968e582f462",
+      "columns": [
+        {
+          "name": "component_id",
+          "type": "text",
+          "description": "Primary key"
+        },
+        {
+          "name": "component_name",
+          "type": "text",
+          "description": ""
+        },
+        {
+          "name": "layer",
+          "type": "text",
+          "description": "same values as fact_incidents.category"
+        }
+      ]
+    },
+    "dim_deployment": {
+      "rows": 15,
+      "sha256": "57b4dfca5439351990798d1b129c181a4cb02c018f25169583b40cb178e89f00",
+      "columns": [
+        {
+          "name": "deployment_id",
+          "type": "text",
+          "description": "Primary key"
+        },
+        {
+          "name": "env_type",
+          "type": "text",
+          "description": "single_node / distributed / cloud"
+        },
+        {
+          "name": "version",
+          "type": "text",
+          "description": "software version, e.g. v3.2"
+        },
+        {
+          "name": "deployed_at",
+          "type": "date",
+          "description": ""
+        }
+      ]
+    },
+    "dim_date": {
+      "rows": 365,
+      "sha256": "5784ec94da1c4af1df568f27ee8d82e27e22d2acc01fbb88f72897cb8df947d9",
+      "columns": [
+        {
+          "name": "date_key",
+          "type": "int",
+          "description": "Primary key, YYYYMMDD"
+        },
+        {
+          "name": "date",
+          "type": "date",
+          "description": ""
+        },
+        {
+          "name": "year",
+          "type": "int",
+          "description": ""
+        },
+        {
+          "name": "quarter",
+          "type": "text",
+          "description": "YYYY-Qn"
+        },
+        {
+          "name": "quarter_number",
+          "type": "int",
+          "description": ""
+        },
+        {
+          "name": "month",
+          "type": "text",
+          "description": "YYYY-MM (sorts chronologically)"
+        },
+        {
+          "name": "month_number",
+          "type": "int",
+          "description": ""
+        },
+        {
+          "name": "month_name",
+          "type": "text",
+          "description": "sort by month_number"
+        },
+        {
+          "name": "day_of_week",
+          "type": "text",
+          "description": ""
+        }
+      ]
+    }
+  }
+}

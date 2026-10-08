@@ -1,0 +1,18 @@
+{
+  "provenance": "The 55 scores were first proposed by someone other than the rater (file *_PROPOSED_by_external_reviewer.csv), verified item by item against the run by the assistant, and adopted by the rater (the project author) with one change. The rubric is therefore NOT an independent judgement of the author alone; this is a stated limitation.",
+  "decisions": {
+    "H3_unsupported_claims": "1 -> 0 (consistency with H2 and H4; cited content is documented; differs from G06)",
+    "H5_s3_sqlok": "kept 0 (the task has no project filter; the right rows are a data coincidence; same class as SQL S4)",
+    "H4_s4": "kept sqlok 0 / says 0 under the frozen contract and registered as a benchmark-specification defect",
+    "others": "unchanged"
+  },
+  "changes": [
+    {
+      "question_id": "H3",
+      "item_id": "unsupported_claims",
+      "proposed": "1",
+      "final": "0"
+    }
+  ],
+  "status": "FINAL, no further revisions"
+}

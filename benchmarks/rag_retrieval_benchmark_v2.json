@@ -1,0 +1,1264 @@
+{
+  "benchmark_version": "rag-retrieval-2.0",
+  "supersedes": "rag-retrieval-1.0 (saturated)",
+  "frozen": true,
+  "selection_seed": 20261005,
+  "disclosure": "rag-retrieval-v1.0 (R1-R5) saturated under BM25 because its questions share the wording of the guide titles and the template-generated corpus. After observing that limitation, v2.0 was designed as an audited symptom-to-case retrieval benchmark. The v2.0 specification was frozen before either BM25 or dense retrieval was run on it. R1-R5 remain in use for the answer-generation benchmark.",
+  "corpus": {
+    "n_docs": 71
+  },
+  "pre_registered": {
+    "query_variants": {
+      "primary": "symptom_only",
+      "declared_ablation": [
+        "symptom_component_environment"
+      ],
+      "note": "the declared variant appends 'Component: <name>. Environment: <type>.' to the symptom"
+    },
+    "retrievers": {
+      "bm25": {
+        "primary": {
+          "granularity": "document",
+          "k1": 1.5,
+          "b": 0.75
+        },
+        "ablation": {
+          "granularity": "section",
+          "k1": 1.5,
+          "b": 0.75,
+          "aggregation": "max chunk score per document"
+        }
+      },
+      "dense": {
+        "model": "BAAI/bge-small-en-v1.5",
+        "library": "sentence-transformers",
+        "similarity": "cosine",
+        "normalize_embeddings": true,
+        "query_prefix": "Represent this sentence for searching relevant passages: ",
+        "document_prefix": "",
+        "primary": {
+          "granularity": "document"
+        },
+        "ablation": {
+          "granularity": "section",
+          "aggregation": "max similarity per document"
+        }
+      }
+    },
+    "primary_comparison": "bm25 / document / symptom_only  vs  dense / document / symptom_only",
+    "rule": "Specification, queries, relevance judgments and configurations are frozen before the first run. No parameter, prefix, prompt or query is tuned afterwards, whichever retriever wins. Ablations are reported for discussion and never replace the primary configuration."
+  },
+  "metrics": {
+    "unit": "document",
+    "retrieval_depth": 10,
+    "k_values": [
+      1,
+      3,
+      5
+    ],
+    "levels": {
+      "relevant": "same true root cause",
+      "strongly_relevant": "same true root cause AND same component"
+    },
+    "root_cause_level": {
+      "hit_at_k": "1 if any relevant document is in the top k",
+      "recall_at_k": "STANDARD recall: |relevant in top k| / |relevant|",
+      "capped_recall_at_k": "|relevant in top k| / min(|relevant|, k): 1.0 means the top k are filled with relevant documents",
+      "precision_at_k": "|relevant in top k| / k",
+      "mrr": "1 / rank of the first relevant document (0 if none in the top 10)"
+    },
+    "case_similarity_level": {
+      "strong_hit_at_k": "1 if any strongly relevant document is in the top k",
+      "strong_mrr": "1 / rank of the first strongly relevant document"
+    },
+    "abstention_retrieval_diagnostic": {
+      "definition": "AUROC of the top-1 retrieval score for separating answerable (positive) from no-answer queries",
+      "note": "retrievers always return documents; this only measures whether their top score carries a signal. Generator-level abstention accuracy is a separate, later benchmark"
+    },
+    "aggregation": "macro average over the 40 answerable queries; the 5 no-answer queries are reported separately",
+    "uncertainty": "queries sharing the same symptom text are perfectly correlated, so compare_runs.py reports a paired CLUSTER bootstrap (clusters = distinct symptom texts) with 95% intervals; the effective sample is the number of distinct texts, not 40"
+  },
+  "known_limitations": {
+    "n_answerable_queries": 40,
+    "distinct_texts_symptom_only": 20,
+    "distinct_texts_symptom_component_environment": 35,
+    "symptom_texts_with_conflicting_strong_sets": 7,
+    "symptom_only_upper_bound": {
+      "strong_hit_at_1": 0.775,
+      "strong_hit_at_3": 1.0
+    },
+    "cause": "symptom_summary is generated from 2-4 templates per root cause (frozen data layer), so several queries are textually identical",
+    "consequences": [
+      "the effective sample size of the primary comparison is the number of distinct symptom texts, not 40",
+      "root-cause-level metrics are unaffected by duplicates (identical text implies identical root cause)",
+      "with symptom text only, strong (component-level) relevance cannot be fully resolved: the upper bounds above cap Strong-Hit@k for every retriever; the declared component+environment variant lifts that cap",
+      "this was found by the unit tests after the first freeze and BEFORE any retriever was run; the disclosure was added and the benchmark re-frozen once; no query and no relevance judgment changed"
+    ]
+  },
+  "queries": [
+    {
+      "id": "Q01",
+      "kind": "answerable",
+      "incident_id": "INC_0060",
+      "incident_status": "closed",
+      "true_root_cause": "authentication_failure",
+      "component_id": "C06",
+      "component": "Web Frontend",
+      "env_type": "single_node",
+      "query_symptom_only": "Token validation fails intermittently and blocks several modules.",
+      "query_symptom_component_environment": "Token validation fails intermittently and blocks several modules. Component: Web Frontend. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0007",
+        "historical_cases/INC_0035",
+        "historical_cases/INC_0075",
+        "historical_cases/INC_0079"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0007"
+      ]
+    },
+    {
+      "id": "Q02",
+      "kind": "answerable",
+      "incident_id": "INC_0090",
+      "incident_status": "closed",
+      "true_root_cause": "authentication_failure",
+      "component_id": "C08",
+      "component": "Auth Service",
+      "env_type": "cloud",
+      "query_symptom_only": "Token validation fails intermittently and blocks several modules.",
+      "query_symptom_component_environment": "Token validation fails intermittently and blocks several modules. Component: Auth Service. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0007",
+        "historical_cases/INC_0035",
+        "historical_cases/INC_0075",
+        "historical_cases/INC_0079"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0079"
+      ]
+    },
+    {
+      "id": "Q03",
+      "kind": "answerable",
+      "incident_id": "INC_0107",
+      "incident_status": "closed",
+      "true_root_cause": "authentication_failure",
+      "component_id": "C08",
+      "component": "Auth Service",
+      "env_type": "distributed",
+      "query_symptom_only": "Users are bounced back to the login page or receive 401 errors after an authentication change.",
+      "query_symptom_component_environment": "Users are bounced back to the login page or receive 401 errors after an authentication change. Component: Auth Service. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0007",
+        "historical_cases/INC_0035",
+        "historical_cases/INC_0075",
+        "historical_cases/INC_0079"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0079"
+      ]
+    },
+    {
+      "id": "Q04",
+      "kind": "answerable",
+      "incident_id": "INC_0154",
+      "incident_status": "closed",
+      "true_root_cause": "authentication_failure",
+      "component_id": "C08",
+      "component": "Auth Service",
+      "env_type": "distributed",
+      "query_symptom_only": "Token validation fails intermittently and blocks several modules.",
+      "query_symptom_component_environment": "Token validation fails intermittently and blocks several modules. Component: Auth Service. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0007",
+        "historical_cases/INC_0035",
+        "historical_cases/INC_0075",
+        "historical_cases/INC_0079"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0079"
+      ]
+    },
+    {
+      "id": "Q05",
+      "kind": "answerable",
+      "incident_id": "INC_0176",
+      "incident_status": "closed",
+      "true_root_cause": "authentication_failure",
+      "component_id": "C07",
+      "component": "API Gateway",
+      "env_type": "distributed",
+      "query_symptom_only": "Users are bounced back to the login page or receive 401 errors after an authentication change.",
+      "query_symptom_component_environment": "Users are bounced back to the login page or receive 401 errors after an authentication change. Component: API Gateway. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0007",
+        "historical_cases/INC_0035",
+        "historical_cases/INC_0075",
+        "historical_cases/INC_0079"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0035",
+        "historical_cases/INC_0075"
+      ]
+    },
+    {
+      "id": "Q06",
+      "kind": "answerable",
+      "incident_id": "INC_0020",
+      "incident_status": "closed",
+      "true_root_cause": "batch_size_too_large",
+      "component_id": "C05",
+      "component": "Data Import Pipeline",
+      "env_type": "cloud",
+      "query_symptom_only": "Large single-batch import of 15M records makes the system very slow.",
+      "query_symptom_component_environment": "Large single-batch import of 15M records makes the system very slow. Component: Data Import Pipeline. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ]
+    },
+    {
+      "id": "Q07",
+      "kind": "answerable",
+      "incident_id": "INC_0109",
+      "incident_status": "closed",
+      "true_root_cause": "batch_size_too_large",
+      "component_id": "C05",
+      "component": "Data Import Pipeline",
+      "env_type": "distributed",
+      "query_symptom_only": "Bulk import of about 5M records stalls or fails with memory or lock errors.",
+      "query_symptom_component_environment": "Bulk import of about 5M records stalls or fails with memory or lock errors. Component: Data Import Pipeline. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ]
+    },
+    {
+      "id": "Q08",
+      "kind": "answerable",
+      "incident_id": "INC_0124",
+      "incident_status": "closed",
+      "true_root_cause": "batch_size_too_large",
+      "component_id": "C05",
+      "component": "Data Import Pipeline",
+      "env_type": "cloud",
+      "query_symptom_only": "Large single-batch import of 15M records makes the system very slow.",
+      "query_symptom_component_environment": "Large single-batch import of 15M records makes the system very slow. Component: Data Import Pipeline. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ]
+    },
+    {
+      "id": "Q09",
+      "kind": "answerable",
+      "incident_id": "INC_0144",
+      "incident_status": "closed",
+      "true_root_cause": "batch_size_too_large",
+      "component_id": "C05",
+      "component": "Data Import Pipeline",
+      "env_type": "cloud",
+      "query_symptom_only": "Bulk import of about 2M records stalls or fails with memory or lock errors.",
+      "query_symptom_component_environment": "Bulk import of about 2M records stalls or fails with memory or lock errors. Component: Data Import Pipeline. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ]
+    },
+    {
+      "id": "Q10",
+      "kind": "answerable",
+      "incident_id": "INC_0167",
+      "incident_status": "closed",
+      "true_root_cause": "batch_size_too_large",
+      "component_id": "C05",
+      "component": "Data Import Pipeline",
+      "env_type": "single_node",
+      "query_symptom_only": "Large single-batch import of 10M records makes the system very slow.",
+      "query_symptom_component_environment": "Large single-batch import of 10M records makes the system very slow. Component: Data Import Pipeline. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0006",
+        "historical_cases/INC_0018",
+        "historical_cases/INC_0038",
+        "historical_cases/INC_0048",
+        "historical_cases/INC_0062",
+        "historical_cases/INC_0064",
+        "historical_cases/INC_0164"
+      ]
+    },
+    {
+      "id": "Q11",
+      "kind": "answerable",
+      "incident_id": "INC_0034",
+      "incident_status": "closed",
+      "true_root_cause": "connection_pool_exhausted",
+      "component_id": "C01",
+      "component": "Primary Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Service becomes unresponsive under concurrent load with no free database connections.",
+      "query_symptom_component_environment": "Service becomes unresponsive under concurrent load with no free database connections. Component: Primary Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0030",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ]
+    },
+    {
+      "id": "Q12",
+      "kind": "answerable",
+      "incident_id": "INC_0102",
+      "incident_status": "closed",
+      "true_root_cause": "connection_pool_exhausted",
+      "component_id": "C02",
+      "component": "Replica Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Intermittent connection errors and rising response time during peak hours; recovers after restart.",
+      "query_symptom_component_environment": "Intermittent connection errors and rising response time during peak hours; recovers after restart. Component: Replica Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0030",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0030"
+      ]
+    },
+    {
+      "id": "Q13",
+      "kind": "answerable",
+      "incident_id": "INC_0106",
+      "incident_status": "closed",
+      "true_root_cause": "connection_pool_exhausted",
+      "component_id": "C01",
+      "component": "Primary Database",
+      "env_type": "cloud",
+      "query_symptom_only": "Intermittent connection errors and rising response time during peak hours; recovers after restart.",
+      "query_symptom_component_environment": "Intermittent connection errors and rising response time during peak hours; recovers after restart. Component: Primary Database. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0030",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ]
+    },
+    {
+      "id": "Q14",
+      "kind": "answerable",
+      "incident_id": "INC_0130",
+      "incident_status": "closed",
+      "true_root_cause": "connection_pool_exhausted",
+      "component_id": "C02",
+      "component": "Replica Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Service becomes unresponsive under concurrent load with no free database connections.",
+      "query_symptom_component_environment": "Service becomes unresponsive under concurrent load with no free database connections. Component: Replica Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0030",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0030"
+      ]
+    },
+    {
+      "id": "Q15",
+      "kind": "answerable",
+      "incident_id": "INC_0137",
+      "incident_status": "closed",
+      "true_root_cause": "connection_pool_exhausted",
+      "component_id": "C01",
+      "component": "Primary Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Intermittent connection errors and rising response time during peak hours; recovers after restart.",
+      "query_symptom_component_environment": "Intermittent connection errors and rising response time during peak hours; recovers after restart. Component: Primary Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0004",
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0030",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0005",
+        "historical_cases/INC_0067",
+        "historical_cases/INC_0101"
+      ]
+    },
+    {
+      "id": "Q16",
+      "kind": "answerable",
+      "incident_id": "INC_0032",
+      "incident_status": "closed",
+      "true_root_cause": "crs_mismatch",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "cloud",
+      "query_symptom_only": "Newly loaded layers display offset from the base map or spatial joins return nothing.",
+      "query_symptom_component_environment": "Newly loaded layers display offset from the base map or spatial joins return nothing. Component: Map Service. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0024",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ]
+    },
+    {
+      "id": "Q17",
+      "kind": "answerable",
+      "incident_id": "INC_0105",
+      "incident_status": "closed",
+      "true_root_cause": "crs_mismatch",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Newly loaded layers display offset from the base map or spatial joins return nothing.",
+      "query_symptom_component_environment": "Newly loaded layers display offset from the base map or spatial joins return nothing. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0024",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ]
+    },
+    {
+      "id": "Q18",
+      "kind": "answerable",
+      "incident_id": "INC_0110",
+      "incident_status": "closed",
+      "true_root_cause": "crs_mismatch",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Newly loaded layers display offset from the base map or spatial joins return nothing.",
+      "query_symptom_component_environment": "Newly loaded layers display offset from the base map or spatial joins return nothing. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0024",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ]
+    },
+    {
+      "id": "Q19",
+      "kind": "answerable",
+      "incident_id": "INC_0112",
+      "incident_status": "closed",
+      "true_root_cause": "crs_mismatch",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Newly loaded layers display offset from the base map or spatial joins return nothing.",
+      "query_symptom_component_environment": "Newly loaded layers display offset from the base map or spatial joins return nothing. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0024",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ]
+    },
+    {
+      "id": "Q20",
+      "kind": "answerable",
+      "incident_id": "INC_0196",
+      "incident_status": "open",
+      "true_root_cause": "crs_mismatch",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Data loads fine but features appear in the wrong place.",
+      "query_symptom_component_environment": "Data loads fine but features appear in the wrong place. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0024",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0001",
+        "historical_cases/INC_0015",
+        "historical_cases/INC_0049",
+        "historical_cases/INC_0058",
+        "historical_cases/INC_0074",
+        "historical_cases/INC_0100",
+        "historical_cases/INC_0111"
+      ]
+    },
+    {
+      "id": "Q21",
+      "kind": "answerable",
+      "incident_id": "INC_0068",
+      "incident_status": "closed",
+      "true_root_cause": "frontend_config_error",
+      "component_id": "C06",
+      "component": "Web Frontend",
+      "env_type": "single_node",
+      "query_symptom_only": "Frontend requests go to the wrong endpoint and panels stay empty.",
+      "query_symptom_component_environment": "Frontend requests go to the wrong endpoint and panels stay empty. Component: Web Frontend. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ]
+    },
+    {
+      "id": "Q22",
+      "kind": "answerable",
+      "incident_id": "INC_0089",
+      "incident_status": "closed",
+      "true_root_cause": "frontend_config_error",
+      "component_id": "C06",
+      "component": "Web Frontend",
+      "env_type": "cloud",
+      "query_symptom_only": "Frontend requests go to the wrong endpoint and panels stay empty.",
+      "query_symptom_component_environment": "Frontend requests go to the wrong endpoint and panels stay empty. Component: Web Frontend. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ]
+    },
+    {
+      "id": "Q23",
+      "kind": "answerable",
+      "incident_id": "INC_0118",
+      "incident_status": "closed",
+      "true_root_cause": "frontend_config_error",
+      "component_id": "C06",
+      "component": "Web Frontend",
+      "env_type": "distributed",
+      "query_symptom_only": "Frontend requests go to the wrong endpoint and panels stay empty.",
+      "query_symptom_component_environment": "Frontend requests go to the wrong endpoint and panels stay empty. Component: Web Frontend. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ]
+    },
+    {
+      "id": "Q24",
+      "kind": "answerable",
+      "incident_id": "INC_0122",
+      "incident_status": "closed",
+      "true_root_cause": "frontend_config_error",
+      "component_id": "C06",
+      "component": "Web Frontend",
+      "env_type": "cloud",
+      "query_symptom_only": "Frontend requests go to the wrong endpoint and panels stay empty.",
+      "query_symptom_component_environment": "Frontend requests go to the wrong endpoint and panels stay empty. Component: Web Frontend. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ]
+    },
+    {
+      "id": "Q25",
+      "kind": "answerable",
+      "incident_id": "INC_0143",
+      "incident_status": "closed",
+      "true_root_cause": "frontend_config_error",
+      "component_id": "C06",
+      "component": "Web Frontend",
+      "env_type": "single_node",
+      "query_symptom_only": "Web pages show blank panels or fail to load after a configuration update.",
+      "query_symptom_component_environment": "Web pages show blank panels or fail to load after a configuration update. Component: Web Frontend. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0014",
+        "historical_cases/INC_0016"
+      ]
+    },
+    {
+      "id": "Q26",
+      "kind": "answerable",
+      "incident_id": "INC_0041",
+      "incident_status": "closed",
+      "true_root_cause": "missing_index",
+      "component_id": "C02",
+      "component": "Replica Database",
+      "env_type": "single_node",
+      "query_symptom_only": "Queries on large tables became very slow following a data load of about 10M records.",
+      "query_symptom_component_environment": "Queries on large tables became very slow following a data load of about 10M records. Component: Replica Database. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0002",
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0017",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0025",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ]
+    },
+    {
+      "id": "Q27",
+      "kind": "answerable",
+      "incident_id": "INC_0047",
+      "incident_status": "closed",
+      "true_root_cause": "missing_index",
+      "component_id": "C01",
+      "component": "Primary Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Queries on large tables became very slow following a data load of about 15M records.",
+      "query_symptom_component_environment": "Queries on large tables became very slow following a data load of about 15M records. Component: Primary Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0002",
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0017",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0025",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0002",
+        "historical_cases/INC_0017",
+        "historical_cases/INC_0025"
+      ]
+    },
+    {
+      "id": "Q28",
+      "kind": "answerable",
+      "incident_id": "INC_0088",
+      "incident_status": "closed",
+      "true_root_cause": "missing_index",
+      "component_id": "C02",
+      "component": "Replica Database",
+      "env_type": "single_node",
+      "query_symptom_only": "Severe latency after a bulk import of approximately 5M records; map queries slow or timing out.",
+      "query_symptom_component_environment": "Severe latency after a bulk import of approximately 5M records; map queries slow or timing out. Component: Replica Database. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0002",
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0017",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0025",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ]
+    },
+    {
+      "id": "Q29",
+      "kind": "answerable",
+      "incident_id": "INC_0127",
+      "incident_status": "closed",
+      "true_root_cause": "missing_index",
+      "component_id": "C02",
+      "component": "Replica Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Severe latency after a bulk import of approximately 10M records; map queries slow or timing out.",
+      "query_symptom_component_environment": "Severe latency after a bulk import of approximately 10M records; map queries slow or timing out. Component: Replica Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0002",
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0017",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0025",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ]
+    },
+    {
+      "id": "Q30",
+      "kind": "answerable",
+      "incident_id": "INC_0160",
+      "incident_status": "open",
+      "true_root_cause": "missing_index",
+      "component_id": "C02",
+      "component": "Replica Database",
+      "env_type": "cloud",
+      "query_symptom_only": "Queries on large tables became very slow following a data load of about 10M records.",
+      "query_symptom_component_environment": "Queries on large tables became very slow following a data load of about 10M records. Component: Replica Database. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0002",
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0017",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0025",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0010",
+        "historical_cases/INC_0021",
+        "historical_cases/INC_0161",
+        "historical_cases/INC_0184"
+      ]
+    },
+    {
+      "id": "Q31",
+      "kind": "answerable",
+      "incident_id": "INC_0076",
+      "incident_status": "closed",
+      "true_root_cause": "tile_cache_misconfig",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Map latency increased and tiles keep being regenerated instead of served from cache.",
+      "query_symptom_component_environment": "Map latency increased and tiles keep being regenerated instead of served from cache. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0052",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ]
+    },
+    {
+      "id": "Q32",
+      "kind": "answerable",
+      "incident_id": "INC_0087",
+      "incident_status": "closed",
+      "true_root_cause": "tile_cache_misconfig",
+      "component_id": "C04",
+      "component": "Tile Cache",
+      "env_type": "cloud",
+      "query_symptom_only": "Map latency increased and tiles keep being regenerated instead of served from cache.",
+      "query_symptom_component_environment": "Map latency increased and tiles keep being regenerated instead of served from cache. Component: Tile Cache. Environment: cloud.",
+      "relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0052",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0052"
+      ]
+    },
+    {
+      "id": "Q33",
+      "kind": "answerable",
+      "incident_id": "INC_0098",
+      "incident_status": "closed",
+      "true_root_cause": "tile_cache_misconfig",
+      "component_id": "C04",
+      "component": "Tile Cache",
+      "env_type": "single_node",
+      "query_symptom_only": "Map display is slow with blank or stale tiles at some zoom levels.",
+      "query_symptom_component_environment": "Map display is slow with blank or stale tiles at some zoom levels. Component: Tile Cache. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0052",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0052"
+      ]
+    },
+    {
+      "id": "Q34",
+      "kind": "answerable",
+      "incident_id": "INC_0145",
+      "incident_status": "closed",
+      "true_root_cause": "tile_cache_misconfig",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Map latency increased and tiles keep being regenerated instead of served from cache.",
+      "query_symptom_component_environment": "Map latency increased and tiles keep being regenerated instead of served from cache. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0052",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ]
+    },
+    {
+      "id": "Q35",
+      "kind": "answerable",
+      "incident_id": "INC_0171",
+      "incident_status": "open",
+      "true_root_cause": "tile_cache_misconfig",
+      "component_id": "C04",
+      "component": "Tile Cache",
+      "env_type": "distributed",
+      "query_symptom_only": "Map latency increased and tiles keep being regenerated instead of served from cache.",
+      "query_symptom_component_environment": "Map latency increased and tiles keep being regenerated instead of served from cache. Component: Tile Cache. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0026",
+        "historical_cases/INC_0033",
+        "historical_cases/INC_0042",
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0046",
+        "historical_cases/INC_0050",
+        "historical_cases/INC_0051",
+        "historical_cases/INC_0052",
+        "historical_cases/INC_0070",
+        "historical_cases/INC_0085"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0043",
+        "historical_cases/INC_0052"
+      ]
+    },
+    {
+      "id": "Q36",
+      "kind": "answerable",
+      "incident_id": "INC_0063",
+      "incident_status": "closed",
+      "true_root_cause": "timeout",
+      "component_id": "C04",
+      "component": "Tile Cache",
+      "env_type": "distributed",
+      "query_symptom_only": "Requests fail with timeout (504) errors, especially at peak usage.",
+      "query_symptom_component_environment": "Requests fail with timeout (504) errors, especially at peak usage. Component: Tile Cache. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0003",
+        "historical_cases/INC_0008",
+        "historical_cases/INC_0009",
+        "historical_cases/INC_0011",
+        "historical_cases/INC_0027",
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0031",
+        "historical_cases/INC_0036",
+        "historical_cases/INC_0054",
+        "historical_cases/INC_0071",
+        "historical_cases/INC_0086",
+        "historical_cases/INC_0117",
+        "historical_cases/INC_0138",
+        "historical_cases/INC_0151",
+        "historical_cases/INC_0152",
+        "historical_cases/INC_0165",
+        "historical_cases/INC_0181"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0031",
+        "historical_cases/INC_0054",
+        "historical_cases/INC_0165"
+      ]
+    },
+    {
+      "id": "Q37",
+      "kind": "answerable",
+      "incident_id": "INC_0077",
+      "incident_status": "closed",
+      "true_root_cause": "timeout",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Requests fail with timeout (504) errors, especially at peak usage.",
+      "query_symptom_component_environment": "Requests fail with timeout (504) errors, especially at peak usage. Component: Map Service. Environment: single node.",
+      "relevant": [
+        "historical_cases/INC_0003",
+        "historical_cases/INC_0008",
+        "historical_cases/INC_0009",
+        "historical_cases/INC_0011",
+        "historical_cases/INC_0027",
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0031",
+        "historical_cases/INC_0036",
+        "historical_cases/INC_0054",
+        "historical_cases/INC_0071",
+        "historical_cases/INC_0086",
+        "historical_cases/INC_0117",
+        "historical_cases/INC_0138",
+        "historical_cases/INC_0151",
+        "historical_cases/INC_0152",
+        "historical_cases/INC_0165",
+        "historical_cases/INC_0181"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0011",
+        "historical_cases/INC_0071",
+        "historical_cases/INC_0181"
+      ]
+    },
+    {
+      "id": "Q38",
+      "kind": "answerable",
+      "incident_id": "INC_0113",
+      "incident_status": "closed",
+      "true_root_cause": "timeout",
+      "component_id": "C07",
+      "component": "API Gateway",
+      "env_type": "distributed",
+      "query_symptom_only": "Users wait a long time and then receive timeout errors.",
+      "query_symptom_component_environment": "Users wait a long time and then receive timeout errors. Component: API Gateway. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0003",
+        "historical_cases/INC_0008",
+        "historical_cases/INC_0009",
+        "historical_cases/INC_0011",
+        "historical_cases/INC_0027",
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0031",
+        "historical_cases/INC_0036",
+        "historical_cases/INC_0054",
+        "historical_cases/INC_0071",
+        "historical_cases/INC_0086",
+        "historical_cases/INC_0117",
+        "historical_cases/INC_0138",
+        "historical_cases/INC_0151",
+        "historical_cases/INC_0152",
+        "historical_cases/INC_0165",
+        "historical_cases/INC_0181"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0008",
+        "historical_cases/INC_0009",
+        "historical_cases/INC_0027",
+        "historical_cases/INC_0117",
+        "historical_cases/INC_0138"
+      ]
+    },
+    {
+      "id": "Q39",
+      "kind": "answerable",
+      "incident_id": "INC_0189",
+      "incident_status": "closed",
+      "true_root_cause": "timeout",
+      "component_id": "C01",
+      "component": "Primary Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Requests fail with timeout (504) errors, especially at peak usage.",
+      "query_symptom_component_environment": "Requests fail with timeout (504) errors, especially at peak usage. Component: Primary Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0003",
+        "historical_cases/INC_0008",
+        "historical_cases/INC_0009",
+        "historical_cases/INC_0011",
+        "historical_cases/INC_0027",
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0031",
+        "historical_cases/INC_0036",
+        "historical_cases/INC_0054",
+        "historical_cases/INC_0071",
+        "historical_cases/INC_0086",
+        "historical_cases/INC_0117",
+        "historical_cases/INC_0138",
+        "historical_cases/INC_0151",
+        "historical_cases/INC_0152",
+        "historical_cases/INC_0165",
+        "historical_cases/INC_0181"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0086"
+      ]
+    },
+    {
+      "id": "Q40",
+      "kind": "answerable",
+      "incident_id": "INC_0193",
+      "incident_status": "closed",
+      "true_root_cause": "timeout",
+      "component_id": "C01",
+      "component": "Primary Database",
+      "env_type": "distributed",
+      "query_symptom_only": "Users wait a long time and then receive timeout errors.",
+      "query_symptom_component_environment": "Users wait a long time and then receive timeout errors. Component: Primary Database. Environment: distributed.",
+      "relevant": [
+        "historical_cases/INC_0003",
+        "historical_cases/INC_0008",
+        "historical_cases/INC_0009",
+        "historical_cases/INC_0011",
+        "historical_cases/INC_0027",
+        "historical_cases/INC_0028",
+        "historical_cases/INC_0031",
+        "historical_cases/INC_0036",
+        "historical_cases/INC_0054",
+        "historical_cases/INC_0071",
+        "historical_cases/INC_0086",
+        "historical_cases/INC_0117",
+        "historical_cases/INC_0138",
+        "historical_cases/INC_0151",
+        "historical_cases/INC_0152",
+        "historical_cases/INC_0165",
+        "historical_cases/INC_0181"
+      ],
+      "strongly_relevant": [
+        "historical_cases/INC_0086"
+      ]
+    },
+    {
+      "id": "Q41",
+      "kind": "no_answer",
+      "incident_id": "INC_0019",
+      "incident_status": "closed",
+      "true_root_cause": "service_publish_failure",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Publishing the map service fails and the service stays unavailable.",
+      "query_symptom_component_environment": "Publishing the map service fails and the service stays unavailable. Component: Map Service. Environment: single node.",
+      "relevant": [],
+      "strongly_relevant": []
+    },
+    {
+      "id": "Q42",
+      "kind": "no_answer",
+      "incident_id": "INC_0169",
+      "incident_status": "closed",
+      "true_root_cause": "service_publish_failure",
+      "component_id": "C04",
+      "component": "Tile Cache",
+      "env_type": "single_node",
+      "query_symptom_only": "Publishing the map service fails and the service stays unavailable.",
+      "query_symptom_component_environment": "Publishing the map service fails and the service stays unavailable. Component: Tile Cache. Environment: single node.",
+      "relevant": [],
+      "strongly_relevant": []
+    },
+    {
+      "id": "Q43",
+      "kind": "no_answer",
+      "incident_id": "INC_0188",
+      "incident_status": "open",
+      "true_root_cause": "service_publish_failure",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Map service cannot be published or starts in an error state after a configuration change.",
+      "query_symptom_component_environment": "Map service cannot be published or starts in an error state after a configuration change. Component: Map Service. Environment: single node.",
+      "relevant": [],
+      "strongly_relevant": []
+    },
+    {
+      "id": "Q44",
+      "kind": "no_answer",
+      "incident_id": "INC_0199",
+      "incident_status": "open",
+      "true_root_cause": "service_publish_failure",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "cloud",
+      "query_symptom_only": "Publishing the map service fails and the service stays unavailable.",
+      "query_symptom_component_environment": "Publishing the map service fails and the service stays unavailable. Component: Map Service. Environment: cloud.",
+      "relevant": [],
+      "strongly_relevant": []
+    },
+    {
+      "id": "Q45",
+      "kind": "no_answer",
+      "incident_id": "INC_0200",
+      "incident_status": "open",
+      "true_root_cause": "service_publish_failure",
+      "component_id": "C03",
+      "component": "Map Service",
+      "env_type": "single_node",
+      "query_symptom_only": "Publishing the map service fails and the service stays unavailable.",
+      "query_symptom_component_environment": "Publishing the map service fails and the service stays unavailable. Component: Map Service. Environment: single node.",
+      "relevant": [],
+      "strongly_relevant": []
+    }
+  ]
+}

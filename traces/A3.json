@@ -1,0 +1,169 @@
+{
+ "trace_version": "trace-1.0",
+ "trace_id": "A3",
+ "kind": "recorded_live",
+ "title": "Average resolution time by component",
+ "role": "analytics",
+ "question": "Which components have the highest average resolution time for closed incidents?",
+ "model": "gemini:gemini-3.5-flash-lite",
+ "recorded_at": "2026-10-07T17:04:16",
+ "specs": {
+  "hybrid_benchmark_sha256": "08a19e428e072647645864d46395c3c4c8e78199d0329abd827cd101d68d4602",
+  "pipeline_spec_sha256": "5448dd4e7fc596897d901a80f1e53bb15ffebf5ca71316250937c0699f3082a9",
+  "corpus_sha256": "7bc608d54b56b0a3df3c08afa79e379e68e5799c310acbeecdf30a717a1187cd",
+  "sql_agent_code_sha256": "1be6a005065745e51dffc52baf06874ea72e62f7b956004b894a2d3cacde0a92"
+ },
+ "status": "ok",
+ "plan": {
+  "requires_sql": true,
+  "requires_retrieval": false,
+  "retrieval_depends_on_sql": false,
+  "sql_tasks": [
+   {
+    "task_id": "t1",
+    "description": "Calculate the average resolution time for closed incidents grouped by component name, and order them in descending order to find which components have the highest average resolution time."
+   }
+  ],
+  "retrieval_purpose": ""
+ },
+ "tasks": [
+  {
+   "task_id": "t1",
+   "description": "Calculate the average resolution time for closed incidents grouped by component name, and order them in descending order to find which components have the highest average resolution time.",
+   "status": "ok",
+   "sql": "SELECT \n    c.name AS component_name,\n    AVG((julianday(i.resolved_at) - julianday(i.reported_at)) * 24) AS avg_resolution_time_hours\nFROM incidents i\nJOIN components c ON i.component_id = c.component_id\nWHERE i.status = 'closed'\nGROUP BY c.component_id, c.name\nORDER BY avg_resolution_time_hours DESC",
+   "attempts": 1,
+   "columns": [
+    "component_name",
+    "avg_resolution_time_hours"
+   ],
+   "rows": [
+    [
+     "Primary Database",
+     40.68750000093132
+    ],
+    [
+     "Replica Database",
+     34.81333333402872
+    ],
+    [
+     "Tile Cache",
+     21.832000000923873
+    ],
+    [
+     "Map Service",
+     20.574418604027393
+    ],
+    [
+     "Data Import Pipeline",
+     16.056521739324797
+    ],
+    [
+     "API Gateway",
+     13.231818181547252
+    ],
+    [
+     "Auth Service",
+     11.166666666045785
+    ],
+    [
+     "Web Frontend",
+     10.447619048080274
+    ]
+   ],
+   "row_count": 8,
+   "error": null
+  }
+ ],
+ "viz": [
+  {
+   "task_id": "t1",
+   "title": "Calculate the average resolution time for closed incidents grouped by component name, and order them in descending order",
+   "kind": "bar",
+   "x": "component_name",
+   "y": "avg_resolution_time_hours",
+   "sort": "y_desc",
+   "orientation": "h",
+   "unit": "hours",
+   "reason": "8 categories"
+  }
+ ],
+ "retrieval": {
+  "status": "not_requested",
+  "purpose": "",
+  "queries": [],
+  "context_ids": [],
+  "documents": []
+ },
+ "answer": "Based on the SQL results, the components with the highest average resolution time for closed incidents, ordered from highest to lowest, are:\n\n1. **Primary Database**: 40.69 hours [sql:t1]\n2. **Replica Database**: 34.81 hours [sql:t1]\n3. **Tile Cache**: 21.83 hours [sql:t1]\n4. **Map Service**: 20.57 hours [sql:t1]\n5. **Data Import Pipeline**: 16.06 hours [sql:t1]\n6. **API Gateway**: 13.23 hours [sql:t1]\n7. **Auth Service**: 11.17 hours [sql:t1]\n8. **Web Frontend**: 10.45 hours [sql:t1]",
+ "findings": [
+  {
+   "text": "**Primary Database**: 40.69 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Replica Database**: 34.81 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Tile Cache**: 21.83 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Map Service**: 20.57 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Data Import Pipeline**: 16.06 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**API Gateway**: 13.23 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Auth Service**: 11.17 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  },
+  {
+   "text": "**Web Frontend**: 10.45 hours [sql:t1]",
+   "sql_tasks": [
+    "t1"
+   ],
+   "docs": []
+  }
+ ],
+ "trust": {
+  "plan_valid": true,
+  "sql_tasks_total": 1,
+  "sql_tasks_ok": 1,
+  "invalid_doc_citations": [],
+  "invalid_sql_citations": [],
+  "citation_marks": 8,
+  "numbers_not_in_any_result": [],
+  "retrieval_query_status": "not_requested",
+  "documents_in_context": 0,
+  "visualization": "selected by deterministic rules (no model involved)"
+ }
+}

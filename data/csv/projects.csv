@@ -1,0 +1,11 @@
+project_id,customer_id,name,start_date,status,sla_tier
+P01,CUS01,Urban Spatial Data Platform,2025-04-13,active,gold
+P02,CUS02,Land Survey Management System,2025-05-09,active,silver
+P03,CUS03,Grid Asset Mapping,2025-06-21,active,bronze
+P04,CUS04,Transit Network Digital Twin,2025-07-17,active,gold
+P05,CUS05,Pipeline Monitoring Portal,2025-08-11,active,silver
+P06,CUS06,Resource Census Platform,2025-09-06,active,bronze
+P07,CUS07,Planning Review System,2025-09-29,active,gold
+P08,CUS08,Mine Safety Mapping,2025-10-13,active,silver
+P09,CUS09,Port Operations Map,2025-11-07,active,bronze
+P10,CUS10,Water Network Platform,2025-11-10,active,gold
