@@ -2,14 +2,13 @@
 
 A portfolio project: an agent that answers questions about enterprise project delivery by combining **SQL analytics** over incident data with **retrieval over case and troubleshooting documents**, and shows its evidence. It comes with frozen benchmarks, a replayable Streamlit demo and a Power BI operations report.
 
-> **Scope and honesty.** All data are synthetic, generated for this project, with intentionally planted operational patterns. Nothing here is real customer data, and the project was not deployed anywhere. Results come from small, frozen benchmarks (5 to 40 items, one run, one model) and are reported with their limits; they demonstrate method and engineering discipline, not production accuracy.
+> **Scope and honesty.** All data are synthetic, generated for this project, with intentionally planted operational patterns. Nothing here is real customer data, and the project was not deployed anywhere. Evaluation uses small, frozen benchmarks (5 to 40 items) and a single model family. Generation and hybrid results are based on one recorded run; SQL v1.1 was repeated across three complete runs as a small repeatability check. The results demonstrate method and engineering discipline, not production accuracy.
 
-<!-- SCREENSHOT 1: demo/ page "Analysis" tab for A1 (line chart) -->
-<!-- SCREENSHOT 2: demo/ page "Evaluation notes" for H2 (checks pass, answer wrong) -->
-<!-- SCREENSHOT 3: Power BI page 1 -->
+![Streamlit replay demo: analytics question A1, chart drawn by deterministic rules](screenshots/01_demo_analysis_a1.png)
+*Replay mode, analytics question A1: the chart is selected by deterministic rules from the recorded SQL rows; gaps are not imputed.*
 
 ## What it does
-Ask a question such as *"Which project currently has the most open incidents, and have we seen similar cases before?"*. A planner decides whether it needs SQL, document retrieval or both; the SQL agent queries the database; retrieval brings the most relevant historical cases and troubleshooting guides; a synthesis step writes an answer where every claim carries a citation (`[sql:t1]` for a query result, `[doc_id]` for a document). A deterministic layer then draws a chart from the recorded rows and runs automated evidence checks.
+Ask a question such as *"Which project currently has the most open incidents, and have we seen similar cases before?"*. A planner decides whether it needs SQL, document retrieval or both; the SQL agent queries the database; retrieval brings the most relevant historical cases and troubleshooting guides; a synthesis step writes a citation-bearing answer from the SQL results and retrieved documents (`[sql:t1]` for a query result, `[doc_id]` for a document). A deterministic layer then draws a chart from the recorded rows and runs automated evidence checks. The demo resolves citations back to the displayed evidence; a citation being present is not treated as proof that the claim is correct.
 
 ## Architecture
 ```mermaid
@@ -45,7 +44,11 @@ Design choices that matter:
 - **Evidence over eloquence.** Each answer sentence is traceable to a SQL result or a document; the page shows both next to the answer.
 - **The display layer adds no meaning.** Charts are chosen by deterministic rules from the recorded rows and verified against them (a fidelity check); no model chooses or edits a chart.
 - **Automated evidence checks verify evidence consistency, not semantic correctness.** The sealed H2 answer passes every check and is still wrong (a SQL semantic error); the demo shows that case on purpose.
-- **Frozen before measured.** Benchmarks, pipeline specification, corpus and data export are fingerprinted (SHA-256) before any model run; scripts rebuild them and compare.
+
+![Evaluation notes for H2: checks pass, SQL semantics wrong](screenshots/02_demo_evaluation_h2.png)
+*Sealed case H2, "Evaluation notes" tab: the generated SQL counted qualifying pairs instead of distinct repeat incidents, so 0 of 2 SQL facts are confirmed even though the automated evidence checks pass.*
+
+- **Frozen before measured.** Benchmark inputs, pipeline specifications and the retrieval corpus are fingerprinted (SHA-256) before their evaluation runs; scripts rebuild them and compare. Later productization artifacts (the BI export and replay traces) have their own deterministic reconciliation and release checks.
 
 ## Try it
 ```powershell
@@ -63,12 +66,28 @@ Replay mode shows nine recorded runs (four analytics questions recorded live wit
 | Answer generation, generation-1.0 | 15/15 answers; 93 citation marks, 0 invalid; fact coverage 21/29 (72.4%); human-counted unsupported claims 3 in 15 | Coverage is completeness against the benchmark checklist; 7 of 8 misses were details the question did not explicitly ask for. |
 | Hybrid pipeline, hybrid-1.0 | 5/5 answered; SQL facts human-confirmed 16/20; document facts covered 4/6; synthesis requirements 4/4; 0 invalid citations; 0 unsupported claims | Failure analysis: H2 SQL semantic error (pairs vs distinct incidents), H4 planner dropped a quarter (and a benchmark specification defect), H5 query-formulation failure. Route compliance 5/5 has no controls and is weak evidence. |
 
-Read these together with the limits: one run, one model (`gemini-3.5-flash-lite`), provider default sampling, 5 questions in the hybrid benchmark, scores proposed by an external reviewer and adopted by the author. Details, defects and post-hoc diagnostics: `benchmark_history/CHANGELOG.md`, `benchmark_history/hybrid_v1_results_summary.md`, `benchmark_history/generation_v1_results_summary.md`.
+Read these with their benchmark-specific limits. Generation and hybrid evaluation use one recorded run of `gemini-3.5-flash-lite` with provider default sampling; SQL v1.1 was repeated across three complete runs; BM25 retrieval is deterministic over the frozen corpus. The hybrid benchmark has only 5 questions. Human scores were proposed by an external reviewer, verified against the recorded run, and adopted by the author; they are not independent blind ratings. Details, defects and post-hoc diagnostics: `benchmark_history/CHANGELOG.md`, `benchmark_history/hybrid_v1_results_summary.md`, `benchmark_history/generation_v1_results_summary.md`.
 
 ## Power BI report
-The same synthetic data is exported to a star schema (`bi_data/`, one fact table with one row per incident, four dimensions) and reported in Power BI on three pages: operations overview, resolution time and root causes, deployments and customers. Seven simple measures; every headline number can be reconciled with the agent's SQL results (`python -m analytics.powerbi_checks`). Build notes: `docs/POWERBI_SPEC.md`.
+The same synthetic data is exported to a star schema (`bi_data/`, one fact table with one row per incident, four dimensions) and reported in Power BI on three pages. Seven simple measures; every headline number can be reconciled with the agent's SQL results (`python -m analytics.powerbi_checks`). Build notes: `docs/POWERBI_SPEC.md`. Files, how to open them and how to refresh: `powerbi/README.md`.
 
-<!-- SCREENSHOTS 4-6: Power BI pages 2 and 3 -->
+| Page | Question it answers |
+|---|---|
+| **Operations Overview** | How many incidents, how many are still open, and how do incidents trend by month and category? |
+| **Resolution Time and Root Causes** | Which components and layers take longest to resolve, and which root causes drive closed and repeat incidents? |
+| **Deployments and Customers** | How do incidents split by Map Service version and environment type, and which projects and customers carry them? |
+
+![Operations Overview](powerbi/screenshots/01_operations_overview.png)
+
+<details>
+<summary>View the other two pages</summary>
+
+![Resolution Time and Root Causes](powerbi/screenshots/02_resolution_root_causes.png)
+![Deployments and Customers](powerbi/screenshots/03_deployments_customers.png)
+
+</details>
+
+Resolution time and root-cause visuals use closed incidents only; open incidents have no recorded root cause. The data are synthetic with intentionally planted patterns, so the charts show analytical behaviour, not real business findings.
 
 ## Repository layout
 | Path | Content |
@@ -82,6 +101,7 @@ The same synthetic data is exported to a star schema (`bi_data/`, one fact table
 | `viz/` | deterministic chart-selection rules and fidelity check |
 | `demo/`, `traces/` | Streamlit demo, trace schema, recorded runs |
 | `analytics/`, `bi_data/` | BI export and tests, star-schema CSVs |
+| `powerbi/` | Power BI report (`.pbix`), PDF export and page screenshots; presentation assets only, never read by the agent |
 | `eval_results/` | intermediate retrieval runs kept for traceability |
 | `release/` | productization manifest: hashes of the final demo version (release evidence; it does not re-freeze any benchmark) |
 
@@ -110,7 +130,7 @@ The test suites cover the SQL agent, retrieval, generation scoring, the hybrid p
 
 ## Limitations
 - Synthetic data with planted patterns: the agent is shown to find what was planted, which demonstrates behaviour, not real-world accuracy.
-- Small benchmarks and single runs; the hybrid benchmark has 5 questions, one of which (H5) is a deliberately chosen diagnostic slice.
+- Small benchmarks; generation and hybrid use one recorded run, and the hybrid benchmark has only 5 questions, including H5 as a deliberately chosen diagnostic slice.
 - The answer step receives at most the first 30 rows of a SQL result; longer results are summarised from that prefix (visible in recorded run A1, whose chart still uses all rows).
 - Retrieval is lexical (BM25); a query that contains an entity name (a project) can retrieve a same-project but non-similar case (H5, INC_0185).
 - Automated evidence checks cannot detect a wrong SQL interpretation.
@@ -119,4 +139,4 @@ The test suites cover the SQL agent, retrieval, generation scoring, the hybrid p
 Controls for routing (SQL-only, RAG-only, direct answer); hybrid lexical + dense retrieval; passing earlier SQL results into dependent tasks; and, as a separate V2, a knowledge-graph layer over projects, components and root causes.
 
 ## Author
-Yanran Zhang (SophiaZ), MSc Geospatial Data Science, HKU.
+Yanran Zhang (Sophia.Z)
