@@ -51,6 +51,8 @@ Design choices that matter:
 - **Frozen before measured.** Benchmark inputs, pipeline specifications and the retrieval corpus are fingerprinted (SHA-256) before their evaluation runs; scripts rebuild them and compare. Later productization artifacts (the BI export and replay traces) have their own deterministic reconciliation and release checks.
 
 ## Try it
+**Live demo** (Replay mode, no API key needed): https://ai-delivery-intelligence-agent.streamlit.app
+
 ```powershell
 pip install -r requirements.txt
 python -m demo.preflight                 # what is installed, hashes, traces
